@@ -2,7 +2,7 @@ A scraper for the website www.topcoder.com.
 
 Given a username and password (and a problem number), this script downloads all information about the problem from the website into an object, then outputs an HTML file.
 
-Future versions will allow exporting to other formats, such as LaTeX and JSON.
+Future versions will allow exporting to other formats, such as LaTeX, PDF and JSON.
 
 Requires:
   * Python 2.7+
