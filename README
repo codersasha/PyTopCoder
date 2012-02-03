@@ -4,4 +4,19 @@ Given a username and password (and a problem number), this script downloads all 
 
 Future versions will allow exporting to other formats, such as LaTeX and JSON.
 
-Requires: Python 2.7+, BeautifulSoup
+Requires:
+  * Python 2.7+
+  * BeautifulSoup
+
+Usage:
+  scraper.py [-u username] [-p password] [-n problem_no] [-o output_file] [-f output_format]
+    * -u username
+      The username used to log into TopCoder
+    * -p password
+      The password used to log into TopCoder
+    * -n problem_no
+      The problem number to download
+    * -o output_file
+      The file to output the problem to
+    * -f output_format
+      The output format - supported formats are 'html' and 'json'

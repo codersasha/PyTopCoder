@@ -6,7 +6,10 @@ import base64
 import urlparse
 import os.path
 import sys
+import json
 from BeautifulSoup import BeautifulSoup
+
+SUPPORTED_FORMATS = ['html', 'json']
 
 class TCProblem(object):
     def __init__(self, opener, problem_num):
@@ -87,6 +90,9 @@ class TCProblem(object):
 
         return final_html
 
+    def to_json(self):
+        return self.to_dict()
+
     def to_dict(self):
         return {"Problem Statement": self.problem_statement,
             "Definition": self.definition,
@@ -153,26 +159,50 @@ def get_associated_text(soup, heading):
 
     return ""
 
-if len(sys.argv) > 3:
-    username = sys.argv[1]
-    password = sys.argv[2]
-    problem_no = int(sys.argv[3])
-else:
-    username = raw_input("Username: ")
-    password = raw_input("Password: ")
-    problem_no = int(raw_input("Problem Number: "))
+# get command-line params
+params = {"username": None,
+    "password": None,
+    "problem_no": None,
+    "output_file": None,
+    "output_format": None}
 
-opener = connect_to_topcoder(username, password, True)
-p = TCProblem(opener, problem_no)
-if p.exists:
-    htmlfile = open("%s.html" % problem_no, "w")
+for i in range(len(sys.argv)):
+    if sys.argv[i] == "-u":
+        params['username'] = sys.argv[i + 1]
+    elif sys.argv[i] == "-p":
+        params['password'] = sys.argv[i + 1]
+    elif sys.argv[i] == "-n":
+        params['problem_no'] = sys.argv[i + 1]
+    elif sys.argv[i] == "-o":
+        params['output_file'] = sys.argv[i + 1]
+    elif sys.argv[i] == "-f":
+        params['output_format'] = sys.argv[i + 1]
+        if params['output_format'] not in SUPPORTED_FORMATS:
+            print "Format %s not supported." % params['output_format']
+            sys.exit(1)
+
+for param in params:
+    if not params[param]:
+        params[param] = raw_input(param + "? ")
+
+opener = connect_to_topcoder(params['username'], params['password'], True)
+p = TCProblem(opener, int(params['problem_no']))
+if not p.exists:
+    print "Problem %s was not found." % params['problem_no']
+    sys.exit(2)
+
+if params['output_format'] == 'html':
+    htmlfile = open(params['output_file'], "w")
     data = p.to_html()
     htmlfile.write(data)
     htmlfile.close()
-    print "Loaded OK"
-else:
-    print "Problem not found"
-
-
+    print "Saved OK"
+elif params['output_format'] == 'json':
+    jsonfile = open(params['output_file'], "w")
+    print p.to_json()
+    data = p.to_json()
+    json.dump(data, jsonfile)
+    jsonfile.close()
+    print "Saved OK"
 
 
