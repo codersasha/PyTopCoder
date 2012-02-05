@@ -5,102 +5,8 @@ import urllib, urllib2
 import base64
 import urlparse
 import os.path
-import sys
 import json
 from BeautifulSoup import BeautifulSoup
-
-SUPPORTED_FORMATS = ['html', 'json']
-
-class TCProblem(object):
-    def __init__(self, opener, problem_num):
-        url = 'http://community.topcoder.com/stat?c=problem_statement&pm=%s' % problem_num
-        soup = BeautifulSoup(open_page(opener, url))
-
-        # save known info
-        self.problem_no = problem_num
-        self.url = url
-        self.soup = soup
-
-        # check the other info exists
-        error = soup.findAll(text=re.compile(".*Problem Statement not available.*"))
-        if error:
-            self.exists = 0
-        else:
-            self.exists = 1
-
-            # get problem statement
-            try:
-                self.problem_statement = get_associated_text(soup, "Problem Statement")
-            except:
-                self.problem_statement = ""
-
-            try:
-                self.definition = get_associated_text(soup, "Definition")
-            except:
-                self.definition = ""
-
-            try:
-                self.constraints = get_associated_text(soup, "Constraints")
-            except:
-                self.constraints = ""
-
-            try:
-                examples = get_associated_text(soup, "Examples")
-
-                # for examples, remove the table
-                #self.examples = "<ul><li>" + '</li><li>'.join([str(x) for x in self.examples]) + "</li></ul>"
-                self.examples = []
-                for example in examples:
-                    table = example[0]
-                    return_val = table.findAll("td", attrs={"class":"statText"}, text=re.compile("Returns"))[0][len("Returns: "):]
-
-                    html_notes = table.findAll("td", attrs={"class":"statText", "colspan": "2"})
-                    notes = []
-                    for note in html_notes:
-                        if note.contents:
-                            notes.append(note.contents[0])
-                    
-                    html_input_lines = table.contents[0].contents[0].contents[0].contents
-                    input_lines = [x.text for x in html_input_lines]
-                    self.examples.append((input_lines, return_val, notes))
-            except:
-                self.examples = []
-
-    def to_html(self):
-        final_html = ""
-        
-        problem_statement = ''.join([str(x) for x in self.problem_statement])
-        final_html += "<h1>Problem Statement</h1>%s" % problem_statement
-        
-        definition = ''.join([str(x) for x in self.definition])
-        final_html += "<h1>Definition</h1>%s" % definition
-
-        constraints = "<ul><li>" + '</li><li>'.join([str(x) for x in self.constraints]) + "</li></ul>"
-        final_html += "<h1>Constraints</h1>%s" % constraints
-
-        examples = "<ul>"
-        for example in self.examples:
-            examples += "<li>"
-            examples += "<pre>%s</pre>" % ('\n'.join(example[0]))
-            examples += "Returns: <b>%s</b><br />" % (example[1].strip().strip('&quot;'))
-            examples += "%s" % '<br />'.join(example[2])
-            examples += "</li>"
-        examples += "</ul>"
-        final_html += "<h1>Examples</h1>%s" % examples
-
-        return final_html
-
-    def to_json(self):
-        return self.to_dict()
-
-    def to_dict(self):
-        return {"Problem Statement": self.problem_statement,
-            "Definition": self.definition,
-            "Constraints": self.constraints,
-            "Examples": self.examples,
-            "URL": self.url,
-            "Problem No.": self.problem_no
-        }
 
 def connect_to_topcoder(username, password, VERBOSE = False):
     requestdata = {'username': username,
@@ -110,11 +16,8 @@ def connect_to_topcoder(username, password, VERBOSE = False):
     cj = cookielib.CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     login_data = urllib.urlencode(requestdata)
-
-    if VERBOSE: print "Logging in...",
+    
     opener.open('http://community.topcoder.com/tc?&module=Login', login_data)
-    if VERBOSE: print "OK"
-
     return opener
 
 def open_page(opener, url, VERBOSE = False):
@@ -125,84 +28,124 @@ def open_page(opener, url, VERBOSE = False):
     if VERBOSE: print "OK"
     return pagedata
 
-def get_associated_text(soup, heading):
-    """Given a topcoder heading on the Problem Statement page, returns the associated HTML.
-    Currently supported headings:
-        - Problem Statement
-        - Definition
-        - Constraints
-        - Examples
-    """
-    if heading == "Problem Statement" or heading == "Definition":
-        heading_tag = soup.find(text=re.compile("^" + heading + "$"))
-        table_cell = heading_tag.parent.parent.parent.nextSibling.contents[1]
-        return table_cell.contents
-    elif heading == "Constraints":
-        heading_tag = soup.find(text=re.compile("^" + heading + "$"))
-        table_row = heading_tag.parent.parent.parent.nextSibling
-        constraints_list = []
-        while table_row.text != u'&#160;':
-            constraints_list.append(''.join([str(x) for x in table_row.contents[1].contents]))
-            table_row = table_row.nextSibling
-        return constraints_list
-    elif heading == "Examples":
-        heading_tag = soup.find(text=re.compile("^" + heading + "$"))
-        table_row = heading_tag.parent.parent.parent.nextSibling.nextSibling
-        examples = []
-        while table_row:
-            examples.append(table_row.contents[1].contents)
-            if table_row.nextSibling:
-                table_row = table_row.nextSibling.nextSibling
-            else:
-                table_row = None
-        return examples
+def eval_variable(data):
+    """Given some data in code format (as a string), returns the data in equivalent Python format."""
+    if data[0] == "{":
+        return list(eval("[" + data[1:-1] + "]")) # preserves order
+    if data[0] in ['"', "'"]:
+        return str(eval(data)).strip("'\"")
+    if data[0].isdigit():
+        return int(eval(data))
+    return eval(data)
 
-    return ""
+problem_no = 11777
+opener = connect_to_topcoder('a4339410', 'a4339410') # taken from www.bugmenot.com
+url = 'http://community.topcoder.com/stat?c=problem_statement&pm=%s' % problem_no
+soup = BeautifulSoup(open_page(opener, url))
 
-# get command-line params
-params = {"username": None,
-    "password": None,
-    "problem_no": None,
-    "output_file": None,
-    "output_format": None}
+problem_info = {
+    'name': None,
+    'statement': None,
+    'definition': {
+        'class': None,
+        'method': None,
+        'parameters': None,
+        'returns': None,
+        'signature': {
+            'name': None,
+            'returns': None,
+            'params': []
+        }
+    },
+    'constraints': [],
+    'examples': [], # each example is {'params': [], 'returns': None, 'comments': None}
+    'tests': [] # each test is {'input': [], 'output': None}
+}
 
-for i in range(len(sys.argv)):
-    if sys.argv[i] == "-u":
-        params['username'] = sys.argv[i + 1]
-    elif sys.argv[i] == "-p":
-        params['password'] = sys.argv[i + 1]
-    elif sys.argv[i] == "-n":
-        params['problem_no'] = sys.argv[i + 1]
-    elif sys.argv[i] == "-o":
-        params['output_file'] = sys.argv[i + 1]
-    elif sys.argv[i] == "-f":
-        params['output_format'] = sys.argv[i + 1]
-        if params['output_format'] not in SUPPORTED_FORMATS:
-            print "Format %s not supported." % params['output_format']
-            sys.exit(1)
+# try to find Problem Statement not available message
+if soup.find("td", {"class": "problemText"}).getText() == u"Problem Statement not available.":
+    print "That problem number does not exist."
 
-for param in params:
-    if not params[param]:
-        params[param] = raw_input(param + "? ")
+# get problem name (with HTML)
+problem_name_text = soup.find("td", {"class": "statTextBig"}).getText()
+problem_info['name'] = re.findall("Problem statement for (.+)", problem_name_text, re.IGNORECASE)[0]
 
-opener = connect_to_topcoder(params['username'], params['password'], True)
-p = TCProblem(opener, int(params['problem_no']))
-if not p.exists:
-    print "Problem %s was not found." % params['problem_no']
-    sys.exit(2)
+# get problem statement (with HTML)
+problem_statement_tag = soup.find("td", {"class": "problemText"}).findAll("td", {"class": "statText"})[2]
+problem_info['statement'] = problem_statement_tag.renderContents()
 
-if params['output_format'] == 'html':
-    htmlfile = open(params['output_file'], "w")
-    data = p.to_html()
-    htmlfile.write(data)
-    htmlfile.close()
-    print "Saved OK"
-elif params['output_format'] == 'json':
-    jsonfile = open(params['output_file'], "w")
-    print p.to_json()
-    data = p.to_json()
-    json.dump(data, jsonfile)
-    jsonfile.close()
-    print "Saved OK"
+# get parts of the definition (no HTML)
+definitions_table = soup.find("h3", text="Definition").parent.parent.parent.nextSibling.find("table")
+class_row, method_row, params_row, returns_row, signature_row, ensure_public_row = definitions_table.findAll("tr")
+problem_info['definition']['class'] = class_row.findAll("td")[1].text
+problem_info['definition']['method'] = method_row.findAll("td")[1].text
+problem_info['definition']['params'] = params_row.findAll("td")[1].text
+problem_info['definition']['returns'] = returns_row.findAll("td")[1].text
+
+# parse signature
+signature = signature_row.findAll("td")[1].text
+parts = re.findall("(.+?) (.+?)\((.+?)\)", signature)[0]
+problem_info['definition']['signature']['returns'] = parts[0]
+problem_info['definition']['signature']['name'] = parts[1]
+problem_info['definition']['signature']['params'] = parts[2].split(', ')
+
+# get constraints (with HTML)
+constraint_bullets = soup.find("h3", text="Constraints").parent.parent.parent.findAllNext("td", text="-")
+for bullet in constraint_bullets:
+    problem_info['constraints'].append(bullet.parent.parent.findAll("td")[1].renderContents())
+
+# get examples
+examples_numbers = soup.find("h3", text="Examples").parent.parent.parent.findAllNext("td", text=re.compile("\d+\)"))
+for number in examples_numbers:
+    new_example = {'params': [], 'returns': None, 'comments': None}
+    
+    example_table = number.parent.parent.nextSibling.find("table")
+    
+    # get params (without HTML)
+    params_table = example_table.findAll("tr")[0].find("table")
+    new_example['params'] = [eval_variable(x.getText()) for x in params_table.findAll("td")]
+
+    # get returns (without HTML)
+    returns_row = example_table.findAll("tr")[-3]
+    new_example['returns'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.IGNORECASE)[0])
+
+    # get comment (with HTML)
+    comments_row = example_table.findAll("tr")[-1]
+    new_example['comments'] = comments_row.find("td").renderContents()
+
+    # save example
+    problem_info['examples'].append(new_example)
+
+# follow the links through to a submission page
+contest_link = soup.find("a", {"href": re.compile("/tc\?module=ProblemDetail&.+")})['href']
+soup = BeautifulSoup(open_page(opener, 'http://community.topcoder.com' + contest_link))
+
+# follow the links to any submission
+submission_link = soup.find("a", {"href": re.compile("/stat\?c=problem_solution&.+")})['href']
+soup = BeautifulSoup(open_page(opener, 'http://community.topcoder.com' + submission_link))
+
+# get the system tests (no HTML)
+test_inputs = soup.findAll("td", {"class": "statText", "align": "left"})
+for i in range(len(test_inputs)):
+    new_test = {'input': [], 'output': None}
+
+    # parse test input
+    test_input_cell = test_inputs[i]
+    new_test['input'] = [eval_variable(x) for x in test_input_cell.getText().split(',\n')]
+
+    # extract test output
+    test_output_cell = test_inputs[i].parent.findAll("td")[3]
+    new_test['output'] = eval_variable(test_output_cell.getText())
+
+    # save test
+    problem_info['tests'].append(new_test)
+
+
+
+
+# save to JSON
+output_file = open("tc_%s.json" % problem_no, "w")
+json.dump(problem_info, output_file, indent=4)
+output_file.close()
 
 
