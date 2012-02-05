@@ -1,6 +1,6 @@
 A scraper for the website www.topcoder.com.
 
-Given a username and password (and a problem number), this script downloads all information about the problem from the website into an object, then outputs an HTML file.
+Given a problem number, this script downloads all information about the problem from the website and saves it in a JSON file.
 
 Future versions will allow exporting to other formats, such as LaTeX, PDF and JSON.
 
@@ -8,15 +8,27 @@ Requires:
   * Python 2.7+
   * BeautifulSoup
 
-Usage:
-  scraper.py [-u username] [-p password] [-n problem_no] [-o output_file] [-f output_format]
-    * -u username
-      The username used to log into TopCoder
-    * -p password
-      The password used to log into TopCoder
-    * -n problem_no
-      The problem number to download
-    * -o output_file
-      The file to output the problem to
-    * -f output_format
-      The output format - supported formats are 'html' and 'json'
+Features:
+  * After parsing, creates a file tc_<problem number>.json with all problem information
+  * Saves all examples and tests in JSON-friendly format
+  * Comes with an automated marking script, marker.py, which can read the JSON file and mark a TopCoder.com problem attempt written in Python
+  * Saves problems with the following structure:
+{
+    'name': None,
+    'statement': None,
+    'definition': {
+        'class': None,
+        'method': None,
+        'parameters': None,
+        'returns': None,
+        'signature': {
+            'name': None,
+            'returns': None,
+            'params': []
+        }
+    },
+    'constraints': [],
+    'examples': [], # each example is {'params': [], 'returns': None, 'comments': None}
+    'tests': [] # each test is {'input': [], 'output': None}
+}
+  * Can be used for building Python TopCoder testing suites
