@@ -28,7 +28,7 @@ Features:
         }
     },
     'constraints': [],
-    'examples': [], # each example is {'params': [], 'returns': None, 'comments': None}
+    'examples': [], # each example is {'input': [], 'output': None, 'comments': None}
     'tests': [] # each test is {'input': [], 'output': None}
 }
   * Can be used for building Python TopCoder testing suites

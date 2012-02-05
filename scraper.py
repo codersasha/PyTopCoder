@@ -58,7 +58,7 @@ problem_info = {
         }
     },
     'constraints': [],
-    'examples': [], # each example is {'params': [], 'returns': None, 'comments': None}
+    'examples': [], # each example is {'input': [], 'output': None, 'comments': None}
     'tests': [] # each test is {'input': [], 'output': None}
 }
 
@@ -101,13 +101,13 @@ for number in examples_numbers:
     
     example_table = number.parent.parent.nextSibling.find("table")
     
-    # get params (without HTML)
+    # get input (without HTML)
     params_table = example_table.findAll("tr")[0].find("table")
-    new_example['params'] = [eval_variable(x.getText()) for x in params_table.findAll("td")]
+    new_example['input'] = [eval_variable(x.getText()) for x in params_table.findAll("td")]
 
-    # get returns (without HTML)
+    # get output (without HTML)
     returns_row = example_table.findAll("tr")[-3]
-    new_example['returns'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.IGNORECASE)[0])
+    new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.IGNORECASE)[0])
 
     # get comment (with HTML)
     comments_row = example_table.findAll("tr")[-1]
