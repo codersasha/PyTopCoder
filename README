@@ -1,8 +1,12 @@
 A scraper for the website www.topcoder.com.
 
-Given a problem number, this script downloads all information about the problem from the website and saves it in a JSON file.
+Given a problem number, this script downloads all information about the problem from the website, and creates:
+ * A directory with the class name and problem number
+ * An __init__.py file
+ * A .json file with all problem information
+ * A .py file (with the method header)
 
-Creates a directory with the class name, and creates a __init__.py file, a .json file, and a .py file (with the method header) in the directory ready for editing. The problem can then be marked using the marker.py script which, given the problem name, automatically runs all the tests for that problem.
+The marker.py script needs to be in the subdirectory that contains all the TopCoder problems. It can then, given a problem name or number, automatically run all the tests for that problem.
 
 Includes one TopCoder problem as an example.
 
@@ -26,8 +30,8 @@ Features:
         'returns': None,
         'signature': {
             'name': None,
-            'returns': None,
-            'params': []
+            'output': None,
+            'input': []
         }
     },
     'constraints': [],
