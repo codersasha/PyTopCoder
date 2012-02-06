@@ -53,7 +53,10 @@ def eval_variable(data):
         return int(eval(data))
     return eval(data)
 
+default_subdirectory = "./problems"
+
 problem_no = int(raw_input("Problem number: "))
+problems_subdirectory = raw_input("Subdirectory [%s]: " % default_subdirectory) or default_subdirectory
 opener = connect_to_topcoder('a4339410', 'a4339410') # taken from www.bugmenot.com
 url = 'http://community.topcoder.com/stat?c=problem_statement&pm=%s' % problem_no
 soup = BeautifulSoup(open_page(opener, url))
@@ -165,8 +168,8 @@ for i in range(len(test_inputs)):
     # save test
     problem_info['tests'].append(new_test)
 
-# make a directory, init.py and py file with the problem name (if they don't exist)
-problem_dir_name = problem_info['definition']['class']
+# make a directory with the problem name (if it doesn't exist)
+problem_dir_name = "%s/%s_%s" % (problems_subdirectory, problem_info['number'], problem_info['definition']['class'])
 if not os.access(problem_dir_name, os.F_OK):
     os.mkdir(problem_dir_name)
 
