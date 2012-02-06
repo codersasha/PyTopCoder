@@ -1,6 +1,6 @@
 import json
 
-problem_dir_name = "StringDup"
+problem_dir_name = raw_input("Problem name: ")
 problem = json.load(open('%s/%s.json' % (problem_dir_name, problem_dir_name)))
 
 attempt = __import__(
@@ -14,7 +14,7 @@ failed = False
 for test_set in ['examples', 'tests']:
     for i, example in enumerate(problem[test_set]):
         result = function(*example['input'])
-        if result != example['output']:
+        if str(result) != str(example['output']): # needed for type differences
             print "Failed %s %d: result was %s, expecting %s with inputs %s." % (test_set[:-1], i, result, example['output'], example['input'])
             failed = True
             break

@@ -7,6 +7,7 @@ import urlparse
 import os.path
 import json
 from BeautifulSoup import BeautifulSoup
+import string
 
 from htmlentitydefs import name2codepoint
 def unescape(s):
@@ -36,15 +37,23 @@ def open_page(opener, url, VERBOSE = False):
 
 def eval_variable(data):
     """Given some data in code format (as a string), returns the data in equivalent Python format."""
+    if data.lower() == "true":
+        return True
+    if data.lower() == "false":
+        return False
     if data[0] == "{":
-        return list(eval("[" + data[1:-1] + "]")) # preserves order
+        # preserve order (don't use sets)
+        return list(eval("[" + data[1:-1] + "]"))
     if data[0] in ['"', "'"]:
         return str(eval(data)).strip("'\"")
+    if data[0] in string.ascii_letters:
+        # unquoted string
+        return str(data.strip())
     if data[0].isdigit():
         return int(eval(data))
     return eval(data)
 
-problem_no = 11777
+problem_no = int(raw_input("Problem number: "))
 opener = connect_to_topcoder('a4339410', 'a4339410') # taken from www.bugmenot.com
 url = 'http://community.topcoder.com/stat?c=problem_statement&pm=%s' % problem_no
 soup = BeautifulSoup(open_page(opener, url))
@@ -85,46 +94,52 @@ problem_statement_tag = soup.find("td", {"class": "problemText"}).findAll("td", 
 problem_info['statement'] = problem_statement_tag.renderContents()
 
 # get parts of the definition (no HTML)
-definitions_table = soup.find("h3", text="Definition").parent.parent.parent.nextSibling.find("table")
-class_row, method_row, params_row, returns_row, signature_row, ensure_public_row = definitions_table.findAll("tr")
-problem_info['definition']['class'] = class_row.findAll("td")[1].text
-problem_info['definition']['method'] = method_row.findAll("td")[1].text
-problem_info['definition']['params'] = params_row.findAll("td")[1].text
-problem_info['definition']['returns'] = returns_row.findAll("td")[1].text
+definitions_header = soup.find("h3", text="Definition")
+if definitions_header:
+    definitions_table = definitions_header.parent.parent.parent.nextSibling.find("table")
+    class_row, method_row, params_row, returns_row, signature_row, ensure_public_row = definitions_table.findAll("tr")
+    problem_info['definition']['class'] = class_row.findAll("td")[1].text
+    problem_info['definition']['method'] = method_row.findAll("td")[1].text
+    problem_info['definition']['params'] = params_row.findAll("td")[1].text
+    problem_info['definition']['returns'] = returns_row.findAll("td")[1].text
 
-# parse signature
-signature = signature_row.findAll("td")[1].text
-parts = re.findall("(.+?) (.+?)\((.+?)\)", signature)[0]
-problem_info['definition']['signature']['returns'] = parts[0]
-problem_info['definition']['signature']['name'] = parts[1]
-problem_info['definition']['signature']['params'] = parts[2].split(', ')
+    # parse signature
+    signature = signature_row.findAll("td")[1].text
+    parts = re.findall("(.+?) (.+?)\((.+?)\)", signature)[0]
+    problem_info['definition']['signature']['returns'] = parts[0]
+    problem_info['definition']['signature']['name'] = parts[1]
+    problem_info['definition']['signature']['params'] = parts[2].split(', ')
 
 # get constraints (with HTML)
-constraint_bullets = soup.find("h3", text="Constraints").parent.parent.parent.findAllNext("td", text="-")
-for bullet in constraint_bullets:
-    problem_info['constraints'].append(bullet.parent.parent.findAll("td")[1].renderContents())
+constraints_header = soup.find("h3", text="Constraints")
+if constraints_header:
+    constraint_bullets = constraints_header.parent.parent.parent.findAllNext("td", text="-")
+    for bullet in constraint_bullets:
+        problem_info['constraints'].append(bullet.parent.parent.findAll("td")[1].renderContents())
 
 # get examples
-examples_numbers = soup.find("h3", text="Examples").parent.parent.parent.findAllNext("td", text=re.compile("^\d+\)$"))
-for number in examples_numbers:
-    new_example = {'params': [], 'returns': None, 'comments': None}
-    
-    example_table = number.parent.parent.nextSibling.find("table")
-    
-    # get input (without HTML)
-    params_table = example_table.findAll("tr")[0].find("table")
-    new_example['input'] = [eval_variable(x.getText()) for x in params_table.findAll("td")]
+examples_header = soup.find("h3", text="Examples")
+if examples_header:
+    examples_numbers = examples_header.parent.parent.parent.findAllNext("td", text=re.compile("^\d+\)$"))
+    for number in examples_numbers:
+        new_example = {'params': [], 'returns': None, 'comments': None}
+        
+        example_table = number.parent.parent.nextSibling.find("table")
+        
+        # get input (without HTML)
+        params_table = example_table.findAll("tr")[0].find("table")
+        new_example['input'] = [eval_variable(x.getText()) for x in params_table.findAll("td")]
 
-    # get output (without HTML)
-    returns_row = example_table.findAll("tr")[1 + len(new_example['input'])]
-    new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.IGNORECASE)[0])
+        # get output (without HTML)
+        returns_row = example_table.findAll("tr")[1 + len(new_example['input'])]
+        new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.IGNORECASE)[0])
 
-    # get comment (with HTML)
-    comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
-    new_example['comments'] = comments_row.find("td").renderContents()
+        # get comment (with HTML)
+        comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
+        new_example['comments'] = comments_row.find("td").renderContents()
 
-    # save example
-    problem_info['examples'].append(new_example)
+        # save example
+        problem_info['examples'].append(new_example)
 
 # follow the links through to a submission page
 contest_link = soup.find("a", {"href": re.compile("/tc\?module=ProblemDetail&.+")})['href']
