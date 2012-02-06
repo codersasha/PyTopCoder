@@ -11,15 +11,25 @@ function = getattr(attempt, problem['definition']['signature']['name'])
 
 # run examples & tests
 failed = False
+crashed = True
 for test_set in ['examples', 'tests']:
     for i, example in enumerate(problem[test_set]):
-        result = function(*example['input'])
-        if str(result) != str(example['output']): # needed for type differences
-            print "Failed %s %d: result was %s, expecting %s with inputs %s." % (test_set[:-1], i, result, example['output'], example['input'])
+        try:
+            crashed = True
+            result = function(*example['input'])
+            crashed = False
+            if str(result) != str(example['output']): # needed for type differences
+                # break out
+                raise Exception()
+            else:
+                print "Passed %s %d: Returned %s with inputs %s." % (test_set[:-1], i, result, example['input'])
+        except Exception, e:
+            if crashed:
+                print "Failed %s %d: Program crashed with error '%s' on inputs %s." % (test_set[:-1], i, e, example['input'])
+            else:
+                print "Failed %s %d: Result was %s, expecting %s with inputs %s." % (test_set[:-1], i, result, example['output'], example['input'])
             failed = True
             break
-        else:
-            print "Passed %s %d, with inputs %s." % (test_set[:-1], i, example['input'])
     if failed:
         break
     # blank line between examples and tests
