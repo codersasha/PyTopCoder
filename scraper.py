@@ -8,6 +8,12 @@ import os.path
 import json
 from BeautifulSoup import BeautifulSoup
 
+from htmlentitydefs import name2codepoint
+def unescape(s):
+    "unescape HTML code refs; c.f. http://wiki.python.org/moin/EscapingHtml"
+    return re.sub('&(%s);' % '|'.join(name2codepoint),
+              lambda m: unichr(name2codepoint[m.group(1)]), s)
+
 def connect_to_topcoder(username, password, VERBOSE = False):
     requestdata = {'username': username,
                     'password': password}
@@ -26,7 +32,7 @@ def open_page(opener, url, VERBOSE = False):
     resp = opener.open(url)
     pagedata = resp.read()
     if VERBOSE: print "OK"
-    return pagedata
+    return unescape(pagedata)
 
 def eval_variable(data):
     """Given some data in code format (as a string), returns the data in equivalent Python format."""
@@ -44,12 +50,13 @@ url = 'http://community.topcoder.com/stat?c=problem_statement&pm=%s' % problem_n
 soup = BeautifulSoup(open_page(opener, url))
 
 problem_info = {
+    'number': None,
     'name': None,
     'statement': None,
     'definition': {
         'class': None,
         'method': None,
-        'parameters': None,
+        'params': None,
         'returns': None,
         'signature': {
             'name': None,
@@ -65,6 +72,9 @@ problem_info = {
 # try to find Problem Statement not available message
 if soup.find("td", {"class": "problemText"}).getText() == u"Problem Statement not available.":
     print "That problem number does not exist."
+
+# save number
+problem_info['number'] = problem_no
 
 # get problem name (with HTML)
 problem_name_text = soup.find("td", {"class": "statTextBig"}).getText()
@@ -95,7 +105,7 @@ for bullet in constraint_bullets:
     problem_info['constraints'].append(bullet.parent.parent.findAll("td")[1].renderContents())
 
 # get examples
-examples_numbers = soup.find("h3", text="Examples").parent.parent.parent.findAllNext("td", text=re.compile("\d+\)"))
+examples_numbers = soup.find("h3", text="Examples").parent.parent.parent.findAllNext("td", text=re.compile("^\d+\)$"))
 for number in examples_numbers:
     new_example = {'params': [], 'returns': None, 'comments': None}
     
@@ -106,11 +116,11 @@ for number in examples_numbers:
     new_example['input'] = [eval_variable(x.getText()) for x in params_table.findAll("td")]
 
     # get output (without HTML)
-    returns_row = example_table.findAll("tr")[-3]
+    returns_row = example_table.findAll("tr")[1 + len(new_example['input'])]
     new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.IGNORECASE)[0])
 
     # get comment (with HTML)
-    comments_row = example_table.findAll("tr")[-1]
+    comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
     new_example['comments'] = comments_row.find("td").renderContents()
 
     # save example
@@ -140,12 +150,31 @@ for i in range(len(test_inputs)):
     # save test
     problem_info['tests'].append(new_test)
 
+# make a directory, init.py and py file with the problem name (if they don't exist)
+problem_dir_name = problem_info['definition']['class']
+if not os.access(problem_dir_name, os.F_OK):
+    os.mkdir(problem_dir_name)
 
-
-
-# save to JSON
-output_file = open("tc_%s.json" % problem_no, "w")
+# save to a JSON file in this directory
+json_file_path = "%s/%s.json" % (problem_dir_name, problem_info['definition']['class'])
+output_file = open(json_file_path, 'w')
 json.dump(problem_info, output_file, indent=4)
 output_file.close()
 
+# make an empty __init__.py file in this directory (if it doesn't exist)
+init_file_path = "%s/__init__.py" % problem_dir_name
+if not os.access(init_file_path, os.F_OK):
+    open(init_file_path, "w").close()
+
+# make a .py script in this directory (if it doesn't exist) with the function header
+python_file_path = "%s/%s.py" % (problem_dir_name, problem_info['definition']['class'])
+if not os.access(python_file_path, os.F_OK):
+    python_file = open(python_file_path, "w")
+    python_file.write("#!/usr/bin/python\n\n")
+    python_file.write("def %s(%s):\n    pass\n" %
+                    (
+                        problem_info['definition']['signature']['name'],
+                        ', '.join(x.split()[-1] for x in problem_info['definition']['signature']['params'])
+                    ))
+    python_file.close()
 

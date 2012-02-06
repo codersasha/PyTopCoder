@@ -1,17 +1,28 @@
 import json
 
-problem_no = 11777
-problem = json.load(open('tc_%s.json' % problem_no))
+problem_dir_name = "BuildingReorganization"
+problem = json.load(open('%s/%s.json' % (problem_dir_name, problem_dir_name)))
 
-attempt = __import__(problem['definition']['class'], fromlist=[problem['definition']['signature']['name']])
+attempt = __import__(
+    "%s.%s" % (problem_dir_name, problem['definition']['class']),
+    fromlist=[problem['definition']['class']]
+)
 function = getattr(attempt, problem['definition']['signature']['name'])
 
-# run examples
-for i, example in enumerate(problem['examples']):
-    result = function(*example['params'])
-    if result != example['returns']:
-        print "Failed example %d: result was %s, expecting %s." % (i, result, example['returns'])
-    else:
-        print "Passed test %d, with inputs %s." % (i, example['params'])
+# run examples & tests
+for test_set in ['examples', 'tests']:
+    for i, example in enumerate(problem[test_set]):
+        result = function(*example['input'])
+        if result != example['output']:
+            print "Failed %s %d: result was %s, expecting %s." % (test_set[:-1], i, result, example['output'])
+            failed = True
+            break
+        else:
+            print "Passed %s %d, with inputs %s." % (test_set[:-1], i, example['input'])
+    if failed:
+        break
+    # blank line between examples and tests
+    print
 
-
+if not failed:
+    print "Passed all tests!"
