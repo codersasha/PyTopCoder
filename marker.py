@@ -14,7 +14,7 @@ for test_set in ['examples', 'tests']:
     for i, example in enumerate(problem[test_set]):
         result = function(*example['input'])
         if result != example['output']:
-            print "Failed %s %d: result was %s, expecting %s." % (test_set[:-1], i, result, example['output'])
+            print "Failed %s %d: result was %s, expecting %s with inputs %s." % (test_set[:-1], i, result, example['output'], example['input'])
             failed = True
             break
         else:
