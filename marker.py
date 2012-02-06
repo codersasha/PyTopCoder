@@ -1,6 +1,6 @@
 import json
 
-problem_dir_name = "BuildingReorganization"
+problem_dir_name = "StringDup"
 problem = json.load(open('%s/%s.json' % (problem_dir_name, problem_dir_name)))
 
 attempt = __import__(
@@ -10,6 +10,7 @@ attempt = __import__(
 function = getattr(attempt, problem['definition']['signature']['name'])
 
 # run examples & tests
+failed = False
 for test_set in ['examples', 'tests']:
     for i, example in enumerate(problem[test_set]):
         result = function(*example['input'])
