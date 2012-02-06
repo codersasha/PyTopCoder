@@ -4,6 +4,8 @@ Given a problem number, this script downloads all information about the problem 
 
 Creates a directory with the class name, and creates a __init__.py file, a .json file, and a .py file (with the method header) in the directory ready for editing. The problem can then be marked using the marker.py script which, given the problem name, automatically runs all the tests for that problem.
 
+Includes one TopCoder problem as an example.
+
 Requires:
   * Python 2.7+
   * BeautifulSoup
