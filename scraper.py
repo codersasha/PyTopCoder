@@ -210,25 +210,26 @@ for problem_no in problem_nos:
         contest_link = soup.find("a", {"href": re.compile("/tc\?module=ProblemDetail&.+")})['href']
         soup = BeautifulSoup(open_page(opener, 'http://community.topcoder.com' + contest_link))
 
-        # follow the links to any submission
-        submission_link = soup.find("a", {"href": re.compile("/stat\?c=problem_solution&.+")})['href']
-        soup = BeautifulSoup(open_page(opener, 'http://community.topcoder.com' + submission_link))
+        # follow the links to any submission (if there is one)
+        submission_link = soup.find("a", {"href": re.compile("/stat\?c=problem_solution&.+")})
+        if submission_link:
+            soup = BeautifulSoup(open_page(opener, 'http://community.topcoder.com' + submission_link['href']))
 
-        # get the system tests (no HTML)
-        test_inputs = soup.findAll("td", {"class": "statText", "align": "left"})
-        for i in range(len(test_inputs)):
-            new_test = {'input': [], 'output': None}
+            # get the system tests (no HTML)
+            test_inputs = soup.findAll("td", {"class": "statText", "align": "left"})
+            for i in range(len(test_inputs)):
+                new_test = {'input': [], 'output': None}
 
-            # parse test input
-            test_input_cell = test_inputs[i]
-            new_test['input'] = [eval_variable(x) for x in test_input_cell.getText().split(',\n')]
+                # parse test input
+                test_input_cell = test_inputs[i]
+                new_test['input'] = [eval_variable(x) for x in test_input_cell.getText().split(',\n')]
 
-            # extract test output
-            test_output_cell = test_inputs[i].parent.findAll("td")[3]
-            new_test['output'] = eval_variable(test_output_cell.getText())
+                # extract test output
+                test_output_cell = test_inputs[i].parent.findAll("td")[3]
+                new_test['output'] = eval_variable(test_output_cell.getText())
 
-            # save test
-            problem_info['tests'].append(new_test)
+                # save test
+                problem_info['tests'].append(new_test)
 
         # make a directory with the problem name (if it doesn't exist)
         problem_dir_name = "%s/%s_%s" % (problems_subdirectory, problem_info['number'], problem_info['definition']['class'])
