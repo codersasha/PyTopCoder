@@ -4,7 +4,7 @@ import re
 import urllib, urllib2
 import base64
 import urlparse
-import os.path
+import os
 import json
 from BeautifulSoup import BeautifulSoup
 import string
@@ -47,6 +47,29 @@ def open_page(opener, url, VERBOSE = False):
     if VERBOSE: print "OK"
     return unescape(pagedata)
 
+def get_all_topcoder_problem_nos(opener, n):
+    """Returns a set of up to n topcoder problem numbers."""
+    # open the problems listing page
+    soup = BeautifulSoup(open_page(opener, 'http://community.topcoder.com/tc?module=ProblemArchive&sr=0&er=%d' % n))
+
+    # extract all problem links
+    problem_nos = set()
+    problem_no_re = re.compile("/stat\?c=problem_statement&pm=(.*)")
+    link_tags = soup.findAll("a", {"class": "statText", "href": problem_no_re})
+    for link_tag in link_tags:
+        problem_nos.add(int(re.findall(problem_no_re, link_tag['href'])[0]))
+        
+    return problem_nos
+
+def get_existing_problem_nos(directory):
+    """Returns a set of all existing problem numbers."""
+    folders = [x for x in os.listdir(problems_subdirectory) if os.path.isdir(problems_subdirectory + os.sep + x)]
+    existing_nos = set()
+    for folder in folders:
+        if '_' in folder:
+            existing_nos.add(int(folder.split('_')[0]))
+    return existing_nos
+
 def eval_variable(data):
     """Given some data in code format (as a string), returns the data in equivalent Python format."""
     if data.lower() == "true":
@@ -66,10 +89,32 @@ def eval_variable(data):
     return eval(data)
 
 default_subdirectory = "./problems"
+smart_mode = False
 
-problem_nos = get_number_list(raw_input("Problem number(s): "))
+problem_nos = raw_input("Problem number(s) [enter a dash '-' to enter smart mode]: ")
+if problem_nos == '-':
+    max_num = int(raw_input("How many problems would you like to look for? "))
+    smart_mode = True
+else:
+    problem_nos = get_number_list(problem_nos)
+
 problems_subdirectory = raw_input("Subdirectory [%s]: " % default_subdirectory) or default_subdirectory
 opener = connect_to_topcoder('a4339410', 'a4339410') # taken from www.bugmenot.com
+
+if smart_mode:
+    # find problem numbers
+    print "Looking for problem numbers...",
+    all_nos = get_all_topcoder_problem_nos(opener, max_num)
+    print "OK"
+
+    # don't redownload already-found ones
+    print "Examining existing problem numbers...",
+    existing_nos = get_existing_problem_nos(problems_subdirectory)
+    print "OK"
+
+    # take the difference
+    problem_nos = all_nos.difference(existing_nos)
+    print "Going to download %d new problems." % len(problem_nos)
 
 for problem_no in problem_nos:
     print "Loading problem %d..." % problem_no,

@@ -6,7 +6,7 @@ Given a problem number, this script downloads all information about the problem 
  * A .json file with all problem information
  * A .py file (with the method header)
 
-The scraper.py script accepts problem numbers in the form '1,2,3-4'.
+The scraper.py script accepts problem numbers in the form '1,2,3-4'. You can also enter a dash '-', after which you'll be asked how many problems you wish to download. The program will then look through TopCoder problem listings and find problems you do not already have, and download those.
  
 The marker.py script needs to be in the subdirectory that contains all the TopCoder problems. It can then, given a problem name or number, automatically run all the tests for that problem.
 
