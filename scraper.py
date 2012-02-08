@@ -152,7 +152,7 @@ for problem_no in problem_nos:
 
         # get problem name (with HTML)
         problem_name_text = soup.find("td", {"class": "statTextBig"}).getText()
-        problem_info['name'] = re.findall("Problem statement for (.+)", problem_name_text, re.IGNORECASE)[0]
+        problem_info['name'] = re.findall("Problem statement for (.+)", problem_name_text, re.DOTALL | re.IGNORECASE | re.MULTILINE)[0]
 
         # get problem statement (with HTML)
         problem_statement_tag = soup.find("td", {"class": "problemText"}).findAll("td", {"class": "statText"})[2]
@@ -197,7 +197,7 @@ for problem_no in problem_nos:
 
                 # get output (without HTML)
                 returns_row = example_table.findAll("tr")[1 + len(new_example['input'])]
-                new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.IGNORECASE)[0])
+                new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.DOTALL | re.IGNORECASE | re.MULTILINE)[0])
 
                 # get comment (with HTML)
                 comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
