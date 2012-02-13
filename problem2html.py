@@ -33,6 +33,25 @@ else:
     signature = "%s %s(%s)" % (s['returns'], s['name'], ', '.join(s['params']))
     html += "<h3>Signature</h3><p>%s</p>" % signature
 
+    # add constraints
+    if json['constraints']:
+        html += "<h2>Constraints</h2><ul>"
+        for c in json['constraints']:
+            html += "<li>%s</li>" % c
+        html += "</ul>"
+
+    # add examples
+    if json['examples']:
+        html += "<h2>Examples</h2><ol>"
+        for e in json['examples']:
+            html += "<li>"
+            html += "<h3>Input</h3><p>%s</p>" % ', '.join(str(x) for x in e['input'])
+            html += "<h3>Output</h3><p>%s</p>" % e['output']
+            if e['comments']:
+                html += "<h3>Comments</h3><p>%s</p>" % e['comments']
+            html += "</li>"
+        html += "</ol>"
+
     # end HTML
     html += "</body></html>"
 
