@@ -12,52 +12,6 @@ import string
 
 from htmlentitydefs import name2codepoint
 
-# topcoder problem pieces
-P_PROBLEM_NUMBER = 'number'
-P_PROBLEM_NAME = 'name'
-P_PROBLEM_STATEMENT = 'statement'
-P_PROBLEM_DEFINITION = 'definition'
-P_PROBLEM_CONSTRAINTS = 'constraints'
-P_PROBLEM_EXAMPLES = 'examples'
-P_PROBLEM_TESTS = 'tests'
-P_SUBMISSION_LISTING_LINK = 'submission_list_link'
-P_SUBMISSION_LINK = 'submission_link'
-
-# topcoder problem structure
-EMPTY_PROBLEM_DICT = {
-    P_PROBLEM_NUMBER: None,
-    P_PROBLEM_NAME: None,
-    P_PROBLEM_STATEMENT: None,
-    P_PROBLEM_DEFINITION: {
-        'class': None,
-        'method': None,
-        'types': {
-            'output': None,
-            'input': []
-        },
-        'names': {
-            'input': []
-        }
-    },
-    P_PROBLEM_CONSTRAINTS: [],
-    P_PROBLEM_EXAMPLES: [], # each example is {'input': [], 'output': None, 'comment': None}
-    P_PROBLEM_TESTS: [] # each test is {'input': [], 'output': None}
-}
-
-EMPTY_DEFINITIONS_DICT = {
-    'class': None,
-    'method': None,
-    'types': {
-        'output': None,
-        'input': []
-    },
-    'names': {
-        'input': []
-    }
-}
-EMPTY_EXAMPLE_DICT = {'params': [], 'returns': None, 'comments': None}
-
-
 # the topcoder pages of interest
 TOPCODER_LOGIN_URL = 'http://community.topcoder.com/tc?&module=Login'
 TOPCODER_PROBLEM_URL_FORMAT = "http://community.topcoder.com/stat?c=problem_statement&pm=%d"

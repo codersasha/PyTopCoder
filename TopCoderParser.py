@@ -8,7 +8,7 @@ class TopCoderParser(object):
     ## helper functions ##
     @staticmethod
     def scrape_problem(n, opener = None):
-        """Attempts to scrape the nth TopCoder problem from the website.
+        """Attempts to scrape the TopCoder problem with ID n from the website.
         If given an opener, attempts to use it, otherwise connects to TopCoder.
         On success, returns a new Problem object."""
 
@@ -25,22 +25,22 @@ class TopCoderParser(object):
 
         # load submission listing page and scrape submission link
         print "Loading submission listing page...",
-        submission_listing_page_html = open_page(opener, problem.__dict__[P_SUBMISSION_LISTING_LINK])
+        submission_listing_page_html = open_page(opener, problem[P_SUBMISSION_LISTING_LINK])
         problem = TopCoderParser(submission_listing_page_html).parse_submission_listing_page(problem)
         print "OK"
 
         # load submission page and scrape tests
         print "Loading submission page...",
-        submission_page_html = open_page(opener, problem.__dict__[P_SUBMISSION_LINK])
+        submission_page_html = open_page(opener, problem[P_SUBMISSION_LINK])
         problem = TopCoderParser(submission_page_html).parse_submission_page(problem)
         print "OK"
 
         # remove the links
-        del problem.__dict__[P_SUBMISSION_LISTING_LINK]
-        del problem.__dict__[P_SUBMISSION_LINK]
+        del problem[P_SUBMISSION_LISTING_LINK]
+        del problem[P_SUBMISSION_LINK]
 
         # save the problem number
-        problem.__dict__[P_PROBLEM_NUMBER] = n
+        problem[P_PROBLEM_NUMBER] = n
 
         # done!
         return problem
@@ -78,7 +78,7 @@ class TopCoderParser(object):
 
         elif piece == P_PROBLEM_DEFINITION:
             definitions_header = self._get_header('Definition')
-            definition = EMPTY_DEFINITIONS_DICT
+            definition = dict(EMPTY_DEFINITIONS_DICT)
             if definitions_header:
                 definitions_table = definitions_header.parent.parent.parent.nextSibling.find("table")
                 class_row, method_row, params_row, returns_row, signature_row, ensure_public_row = definitions_table.findAll("tr")
@@ -112,7 +112,7 @@ class TopCoderParser(object):
             if examples_header:
                 examples_numbers = examples_header.parent.parent.parent.findAllNext("td", text=re.compile("^\d+\)$"))
                 for number in examples_numbers:
-                    new_example = EMPTY_EXAMPLE_DICT
+                    new_example = dict(EMPTY_EXAMPLE_DICT)
                     example_table = number.parent.parent.nextSibling.find("table")
                     
                     # get input (without HTML)
@@ -125,7 +125,7 @@ class TopCoderParser(object):
 
                     # get comment (with HTML)
                     comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
-                    new_example['comments'] = comments_row.find("td").renderContents()
+                    new_example['comment'] = comments_row.find("td").renderContents()
 
                     # save example
                     examples.append(new_example)
@@ -176,7 +176,7 @@ class TopCoderParser(object):
         # get each piece
         for piece in pieces:
             result = self._scrape_piece(piece)
-            problem.__dict__[piece] = result
+            problem[piece] = result
         
         return problem
             
@@ -218,8 +218,6 @@ class TopCoderParser(object):
         The following pieces are updated:
         P_PROBLEM_TESTS
         """
-
-        return self._scrape_pieces([P_PROBLEM_TESTS], problem)
-
-
         
+        return self._scrape_pieces([P_PROBLEM_TESTS], problem)
+    
