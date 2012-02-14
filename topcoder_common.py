@@ -66,39 +66,6 @@ def get_topcoder_problem_page(opener, n):
     On success, returns the page's HTML."""
     return open_page(opener, TOPCODER_PROBLEM_URL_FORMAT % n)
 
-def get_all_topcoder_problem_nos(opener, n, end = None):
-    """Returns the first n TopCoder problem numbers from the problem listing.
-    If given two numbers, returns all topcoder problem numbers found between those
-    two numbers."""
-
-    # calculate start and end
-    if end == None:
-        start = 0
-        end = n
-    else:
-        start = n
-    
-    # open the problems listing page
-    soup = BeautifulSoup(open_page(opener, TOPCODER_LISTING_URL_FORMAT % (start, end)))
-
-    # extract all problem links
-    problem_nos = set()
-    problem_no_re = re.compile(TOPCODER_LISTING_LINK_RE)
-    link_tags = soup.findAll("a", {"class": "statText", "href": problem_no_re})
-    for link_tag in link_tags:
-        problem_nos.add(int(re.findall(problem_no_re, link_tag['href'])[0]))
-        
-    return problem_nos
-
-def get_existing_problem_nos(problems_subdirectory):
-    """Returns a set of all existing problem numbers in a particular directory."""
-    folders = [x for x in os.listdir(problems_subdirectory) if os.path.isdir(problems_subdirectory + os.sep + x)]
-    existing_nos = set()
-    for folder in folders:
-        if '_' in folder:
-            existing_nos.add(int(folder.split('_')[0]))
-    return existing_nos
-
 def eval_variable(data):
     """Given some data in code format (as a string), returns the data in equivalent Python format."""
     if data.lower() == "true":

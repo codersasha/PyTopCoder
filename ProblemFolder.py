@@ -27,6 +27,10 @@ class ProblemFolder(object):
         self.problems = load_existing_problems(self.loc)
 
     ## public methods ##
+    def get_problem_numbers(self):
+        """Returns a list of all problem numbers in this directory."""
+        return [x[1] for x in self.problems]
+    
     def scrape_and_add_problem(self, n, force = False, opener = None):
         """Given a problem number, scrapes the problem and adds it to the
         directory.

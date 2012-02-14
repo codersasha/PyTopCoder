@@ -24,5 +24,23 @@ Features:
   * Can be used for building Python TopCoder testing suites
 
 Examples:
+0) See more help for the scraper.py script:
+$ scraper.py --help
+
 1) Fetch problems 1, 2, 3 and 5 and save them in the problems directory:
-$ scraper.py -o problems 1-3,5
+$ scraper.py 1-3,5
+
+2) Fetch problem 11777 and save it in /usr/var/problems:
+$ scraper.py -o /usr/var/problems 11777
+
+3) Fetch problems 11777 and 117779 and overwrite everything, even the python file if it exists already:
+$ scraper.py 11777,11779 --force
+
+4) Fetch up to 10 new problems from TopCoder, unless I already have them
+$ scraper.py 10 --smart
+
+5) Fetch 10 new problems from TopCoder, downloading them even if I have them already, and overwriting everything:
+$ scraper.py 10 --smart --force
+
+6) Fetch all problems between 10 and 50 on the TopCoder listing, overwriting everything:
+$ scraper.py 10,50 --smart --force
