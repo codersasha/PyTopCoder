@@ -1,7 +1,10 @@
-## Overview
+PYTHON TOP-CODER SCRAPER
+=================
+
 A scraper for the website www.topcoder.com.
 
 Given a problem number, this script downloads all information about the problem from the website, and creates:
+
 * A directory with the class name and problem number
 * An __init__.py file
 * A .json file with all problem information
@@ -14,17 +17,22 @@ The marker.py script needs to be in the subdirectory that contains all the TopCo
 
 Includes one TopCoder problem as an example.
 
-## Requires
+Requires
+--------
+
 * Python 2.7+
 * BeautifulSoup
 
-## Features
+Features
+--------
+
 * After parsing, creates a file tc_<problem number>.json with all problem information
 * Saves all examples and tests in JSON-friendly format
 * Comes with an automated marking script, marker.py, which can read the JSON file and mark a TopCoder.com problem attempt written in Python
 * Can be used for building Python TopCoder testing suites
 
-## Examples
+Examples
+--------
 1. See more help for the scraper.py script:
     $ scraper.py --help
 2. Fetch problems 1, 2, 3 and 5 and save them in the problems directory:
