@@ -39,7 +39,9 @@ class ProblemFolder(object):
         problem = scrape_problem(n, opener)
 
         # save problem
+        print "Saving files...",
         self.add_problem(problem, force)
+        print "OK"
         
     def find_problem(self, name = None, number = None, path = None):
         """Returns a list of problem tuples that match the search query."""

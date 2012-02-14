@@ -48,14 +48,15 @@ def open_page(opener, url):
     pagedata = resp.read()
     return unescape(pagedata)
 
-def remove_empty_tags(soup, tag_name):
+def remove_empty_tags(soup, tag_name, recursive=False):
     """Given a tag name, removes all tags with that name from the soup if they
     have no text.
-    Returns the new soup."""
-    for tag in soup.findAll(tag_name):
+    Returns the new soup without modifying the given one."""
+    new_soup = BeautifulSoup(str(soup))
+    for tag in new_soup.findAll(tag_name, recursive=recursive):
         if not tag.text:
             tag.extract()
-    return soup
+    return new_soup
 
 ## topcoder-specific functions ##
 def connect_to_topcoder(username = TOPCODER_DEFAULT_USER, password = TOPCODER_DEFAULT_PASS):
@@ -128,6 +129,18 @@ def eval_variable(data):
     if data[0].isdigit():
         return int(eval(data))
     return eval(data)
+
+def remove_empty_tables(soup):
+    """Removes all tables from the soup that have no text.
+    Returns the new soup without modifying the given one."""
+    return remove_empty_tags(soup, 'table')
+
+def remove_all_empty_tags(soup):
+    """Removes all tags from the soup that have no text.
+    Returns the new soup without modifying the given one.
+    
+    NOTE: Only works for soup tags. Does not work for the root of the soup."""
+    return remove_empty_tags(soup, soup.name, recursive=True)
 
 def get_json(directory, problem_no):
     """Given a problem number and a parent directory, returns the JSON (as a

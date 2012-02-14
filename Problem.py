@@ -50,7 +50,7 @@ EMPTY_DEFINITIONS_DICT = {
         'input': []
     }
 }
-EMPTY_EXAMPLE_DICT = {'params': [], 'returns': None, 'comments': None}
+EMPTY_EXAMPLE_DICT = {'input': [], 'output': None, 'comment': None}
 
 ## html output parameters ##
 MAIN_HEADER_LEVEL = 1

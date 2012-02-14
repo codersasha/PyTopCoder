@@ -27,16 +27,17 @@ class TopCoderParser(object):
             return None
         
         elif piece == P_PROBLEM_NAME:
-            # get problem name (with HTML)
+            # get problem name (without HTML)
             problem_name_text = self.soup.find("td", {"class": "statTextBig"}).getText()
             return re.findall("Problem statement for (.+)", problem_name_text, re.DOTALL | re.IGNORECASE | re.MULTILINE)[0]
 
         elif piece == P_PROBLEM_STATEMENT:
             # get problem statement (with HTML)
             problem_statement_tag = self.soup.find("td", {"class": "problemText"}).findAll("td", {"class": "statText"})[2]
-            return problem_statement_tag.renderContents()
+            return remove_all_empty_tags(problem_statement_tag).renderContents()
 
         elif piece == P_PROBLEM_DEFINITION:
+            # get problem definition (without HTML)
             definitions_header = self._get_header('Definition')
             definition = dict(EMPTY_DEFINITIONS_DICT)
             if definitions_header:
@@ -61,7 +62,7 @@ class TopCoderParser(object):
                 constraints = []
                 constraint_bullets = constraints_header.parent.parent.parent.findAllNext("td", text="-")
                 for bullet in constraint_bullets:
-                    constraints.append(bullet.parent.parent.findAll("td")[1].renderContents())
+                    constraints.append(remove_all_empty_tags(bullet.parent.parent.findAll("td")[1]).renderContents())
                 return constraints
             else:
                 return None
@@ -85,7 +86,7 @@ class TopCoderParser(object):
 
                     # get comment (with HTML)
                     comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
-                    new_example['comment'] = comments_row.find("td").renderContents()
+                    new_example['comment'] = remove_all_empty_tags(comments_row.find("td")).renderContents()
 
                     # save example
                     examples.append(new_example)
