@@ -5,46 +5,6 @@ class TopCoderParser(object):
     """The class that performs all of the parsing for the TopCoder pages.
     Generates Problem objects from HTML pages."""
     
-    ## helper functions ##
-    @staticmethod
-    def scrape_problem(n, opener = None):
-        """Attempts to scrape the TopCoder problem with ID n from the website.
-        If given an opener, attempts to use it, otherwise connects to TopCoder.
-        On success, returns a new Problem object."""
-
-        if opener == None:
-            print "Connecting to TopCoder...",
-            opener = connect_to_topcoder()
-            print "OK"
-
-        # load problem page and scrape problem
-        print "Loading problem page...",
-        problem_page_html = get_topcoder_problem_page(opener, n)
-        problem = TopCoderParser(problem_page_html).parse_problem_page()
-        print "OK"
-
-        # load submission listing page and scrape submission link
-        print "Loading submission listing page...",
-        submission_listing_page_html = open_page(opener, problem[P_SUBMISSION_LISTING_LINK])
-        problem = TopCoderParser(submission_listing_page_html).parse_submission_listing_page(problem)
-        print "OK"
-
-        # load submission page and scrape tests
-        print "Loading submission page...",
-        submission_page_html = open_page(opener, problem[P_SUBMISSION_LINK])
-        problem = TopCoderParser(submission_page_html).parse_submission_page(problem)
-        print "OK"
-
-        # remove the links
-        del problem[P_SUBMISSION_LISTING_LINK]
-        del problem[P_SUBMISSION_LINK]
-
-        # save the problem number
-        problem[P_PROBLEM_NUMBER] = n
-
-        # done!
-        return problem
-    
     ## init ##
     def __init__(self, html):
         """Creates a new parser object, using the HTML given."""
@@ -221,3 +181,41 @@ class TopCoderParser(object):
         
         return self._scrape_pieces([P_PROBLEM_TESTS], problem)
     
+## helper functions ##
+def scrape_problem(n, opener = None):
+    """Attempts to scrape the TopCoder problem with ID n from the website.
+    If given an opener, attempts to use it, otherwise connects to TopCoder.
+    On success, returns a new Problem object."""
+
+    if opener == None:
+        print "Connecting to TopCoder...",
+        opener = connect_to_topcoder()
+        print "OK"
+
+    # load problem page and scrape problem
+    print "Loading problem page...",
+    problem_page_html = get_topcoder_problem_page(opener, n)
+    problem = TopCoderParser(problem_page_html).parse_problem_page()
+    print "OK"
+
+    # load submission listing page and scrape submission link
+    print "Loading submission listing page...",
+    submission_listing_page_html = open_page(opener, problem[P_SUBMISSION_LISTING_LINK])
+    problem = TopCoderParser(submission_listing_page_html).parse_submission_listing_page(problem)
+    print "OK"
+
+    # load submission page and scrape tests
+    print "Loading submission page...",
+    submission_page_html = open_page(opener, problem[P_SUBMISSION_LINK])
+    problem = TopCoderParser(submission_page_html).parse_submission_page(problem)
+    print "OK"
+
+    # remove the links
+    del problem[P_SUBMISSION_LISTING_LINK]
+    del problem[P_SUBMISSION_LINK]
+
+    # save the problem number
+    problem[P_PROBLEM_NUMBER] = n
+
+    # done!
+    return problem

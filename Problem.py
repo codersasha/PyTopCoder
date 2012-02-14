@@ -57,6 +57,17 @@ MAIN_HEADER_LEVEL = 1
 HEADER_LEVEL = 2
 SUB_HEADER_LEVEL = 3
 
+## JSON output parameters ##
+JSON_INDENT_LEVEL = 4
+
+## python output parameters ##
+PYTHON_TEMPLATE = """#!/usr/bin/python
+
+def %s:
+    pass
+
+"""
+
 class Problem(object, IterableUserDict):
     """The class for all TopCoder problems.
     Inherits from IterableUserDict, and supports all regular dictionary
@@ -173,16 +184,32 @@ class Problem(object, IterableUserDict):
         return [_piece_to_html(x) for x in pieces]
 
     ## public object methods ##
+
+    # python output #
+    def to_python(self, template = PYTHON_TEMPLATE):
+        """Returns a Python file, with the method header, according to the
+        specified python template."""
+        return PYTHON_TEMPLATE % self._generate_mini_signature()
+        
+    def to_python_file(self, filename, template = PYTHON_TEMPLATE):
+        """Saves Python text to a file, with the method header, according to the
+        specified python template."""
+        python_file = open(filename, 'w')
+        python_file.write(self.to_python())
+        python_file.close()
+
+    # json output #
     def to_json(self):
         """Returns the problem, as a JSON string."""
-        return json.dumps(self.data, indent=4)
+        return json.dumps(self.data, indent=JSON_INDENT_LEVEL)
 
     def to_json_file(self, filename):
         """Saves the problem in JSON format to the given filename."""
         json_file = open(filename, 'w')
-        json.dump(self.data, json_file, indent=4)
+        json.dump(self.data, json_file, indent=JSON_INDENT_LEVEL)
         json_file.close()
 
+    # html output #
     def to_html(self):
         """Returns the problem, as an HTML string."""
 

@@ -48,6 +48,15 @@ def open_page(opener, url):
     pagedata = resp.read()
     return unescape(pagedata)
 
+def remove_empty_tags(soup, tag_name):
+    """Given a tag name, removes all tags with that name from the soup if they
+    have no text.
+    Returns the new soup."""
+    for tag in soup.findAll(tag_name):
+        if not tag.text:
+            tag.extract()
+    return soup
+
 ## topcoder-specific functions ##
 def connect_to_topcoder(username = TOPCODER_DEFAULT_USER, password = TOPCODER_DEFAULT_PASS):
     """Connect to TopCoder, using the given username and password.
@@ -137,4 +146,4 @@ def get_json(directory, problem_no):
     # find the JSON
     return json.load(open(directory + os.sep + folder + os.sep + problem_name + '.json'))
 
-    
+
