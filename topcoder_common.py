@@ -29,19 +29,6 @@ def unescape(s):
     return re.sub('&(%s);' % '|'.join(name2codepoint),
               lambda m: unichr(name2codepoint[m.group(1)]), s)
 
-def get_numbers_from_list(num_text):
-    """Given a list of numbers as text (e.g. '1-2,5,7-9'), returns a list of these
-    numbers."""
-    nums = set()
-    num_tokens = num_text.replace(' ', '').replace('\t', '').split(',')
-    for token in num_tokens:
-        if '-' in token:
-            start, end = token.split('-')
-            nums.update(range(int(start), int(end) + 1))
-        else:
-            nums.add(int(token))
-    return sorted(nums)
-
 def open_page(opener, url):
     """Opens a page with the given opener, returning the page's HTML."""
     resp = opener.open(url)

@@ -1,6 +1,9 @@
 from topcoder_common import *
 from Problem import *
 
+# the text that defines a problem is missing
+MISSING_PROBLEM_TEXT = u"Problem Statement not available."
+
 class TopCoderParser(object):
     """The class that performs all of the parsing for the TopCoder pages.
     Generates Problem objects from HTML pages."""
@@ -12,6 +15,13 @@ class TopCoderParser(object):
         self.soup = BeautifulSoup(html)
 
     ## private object methods ##
+    def _is_missing_problem(self):
+        """Checks if this page contains a problem that is missing.
+        Returns True if it contains the 'problem missing' text, False if not."""
+        if self.soup.find("td", {"class": "problemText"}).getText() == MISSING_PROBLEM_TEXT:
+            return True
+        return False
+        
     def _get_header(self, text):
         """Returns a reference to the soup header tag that contains the given text,
         or None if the header was not found.
@@ -155,6 +165,10 @@ class TopCoderParser(object):
         P_SUBMISSION_LISTING_LINK
         """
 
+        # first check if the problem is OK
+        if self._is_missing_problem():
+            return None
+
         return self._scrape_pieces([P_PROBLEM_NAME,
             P_PROBLEM_STATEMENT,
             P_PROBLEM_DEFINITION,
@@ -197,6 +211,10 @@ def scrape_problem(n, opener = None):
     print "Loading problem page...",
     problem_page_html = get_topcoder_problem_page(opener, n)
     problem = TopCoderParser(problem_page_html).parse_problem_page()
+
+    if problem == None:
+        print "Problem does not exist."
+        return None
     print "OK"
 
     # load submission listing page and scrape submission link

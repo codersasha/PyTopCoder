@@ -38,10 +38,11 @@ class ProblemFolder(object):
         # get problem
         problem = scrape_problem(n, opener)
 
-        # save problem
-        print "Saving files...",
-        self.add_problem(problem, force)
-        print "OK"
+        if problem:
+            # save problem
+            print "Saving files...",
+            self.add_problem(problem, force)
+            print "OK"
         
     def find_problem(self, name = None, number = None, path = None):
         """Returns a list of problem tuples that match the search query."""
@@ -84,7 +85,7 @@ class ProblemFolder(object):
         init_filename = INIT_FILE_FORMAT
 
         # does this problem directory already exist?
-        directory_exists = x.find_problem(path=target_dir)
+        directory_exists = self.find_problem(path=target_dir)
         if not directory_exists:
             # create folder
             os.mkdir(target_dir)
@@ -157,9 +158,3 @@ def load_existing_problems(directory):
                 print "Could not load file %s: %s" % (root + os.sep + json_files[0], e)
             
     return problems
-
-
-            
-            
-x = ProblemFolder('problems')  
-x.scrape_and_add_problem(10788)

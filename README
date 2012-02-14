@@ -4,6 +4,7 @@ Given a problem number, this script downloads all information about the problem 
  * A directory with the class name and problem number
  * An __init__.py file
  * A .json file with all problem information
+ * A .html file with all problem information
  * A .py file (with the method header)
 
 The scraper.py script accepts problem numbers in the form '1,2,3-4'. You can also enter a dash '-', after which you'll be asked how many problems you wish to download. The program will then look through TopCoder problem listings and find problems you do not already have, and download those.
@@ -20,24 +21,8 @@ Features:
   * After parsing, creates a file tc_<problem number>.json with all problem information
   * Saves all examples and tests in JSON-friendly format
   * Comes with an automated marking script, marker.py, which can read the JSON file and mark a TopCoder.com problem attempt written in Python
-  * Saves problems with the following structure:
-{
-    'number': None,
-    'name': None,
-    'statement': None,
-    'definition': {
-        'class': None,
-        'method': None,
-        'parameters': None,
-        'returns': None,
-        'signature': {
-            'name': None,
-            'output': None,
-            'input': []
-        }
-    },
-    'constraints': [],
-    'examples': [], # each example is {'input': [], 'output': None, 'comments': None}
-    'tests': [] # each test is {'input': [], 'output': None}
-}
   * Can be used for building Python TopCoder testing suites
+
+Examples:
+1) Fetch problems 1, 2, 3 and 5 and save them in the problems directory:
+$ scraper.py -o problems 1-3,5
