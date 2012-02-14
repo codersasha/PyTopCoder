@@ -55,41 +55,50 @@ if __name__ == "__main__":
                         help="If specified, operates in smart mode, and looks for n new problems from TopCoder. Specify two numbers to find all problems between these two numbers. Does NOT download existing problems.")
     parser.add_argument('-f', '--force', action="store_true",
                         help="If specified, overwrites existing problem Python files, or (in smart mode) downloads problems even if they already exist.")
+    parser.add_argument('-t', '--test', action="store_true",
+                        help="If specified, runs tests for the specified problem numbers instead of running them.")
     args = parser.parse_args()
 
+    # parse out problem numbers
     problem_numbers = get_numbers_from_list(args.problems)
 
-    # create output directory
+    # scan output directory
     folder = ProblemFolder(args.output_dir)
 
-    # connect to TopCoder
-    print "Connecting to TopCoder...",
-    opener = connect_to_topcoder()
-    print "OK"
+    if args.test:
+        # test specified problems
+        for n in problem_numbers:
+            folder.test_problems(folder.find_problem(number = n))
 
-    # are we in smart mode?
-    if args.smart:
-        # look for problem numbers first
-        print "Looking for problems...",
-        if len(problem_numbers) == 2:
-            new_ids = get_topcoder_problem_ids(opener, problem_numbers[0], problem_numbers[1])
-        else:
-            new_ids = get_topcoder_problem_ids(opener, problem_numbers[0])
-        print "%d problems found." % len(new_ids)
+    else:
+        # connect to TopCoder
+        print "Connecting to TopCoder...",
+        opener = connect_to_topcoder()
+        print "OK"
 
-        # don't re-download existing problems, unless in forced mode
-        if args.force:
-            problem_numbers = new_ids
-        else:
-            existing_ids = folder.get_problem_numbers()
-            problem_numbers = [x for x in new_ids if x not in existing_ids]
+        # are we in smart mode?
+        if args.smart:
+            # look for problem numbers first
+            print "Looking for problems...",
+            if len(problem_numbers) == 2:
+                new_ids = get_topcoder_problem_ids(opener, problem_numbers[0], problem_numbers[1])
+            else:
+                new_ids = get_topcoder_problem_ids(opener, problem_numbers[0])
+            print "%d problems found." % len(new_ids)
 
-    print "--- Scraping %d problems ---" % len(problem_numbers)
+            # don't re-download existing problems, unless in forced mode
+            if args.force:
+                problem_numbers = new_ids
+            else:
+                existing_ids = folder.get_problem_numbers()
+                problem_numbers = [x for x in new_ids if x not in existing_ids]
 
-    # scrape problems
-    for n in problem_numbers:
-        print " * Scraping problem %d." % n
-        folder.scrape_and_add_problem(n, opener=opener, force=args.force)
+        print "--- Scraping %d problems ---" % len(problem_numbers)
 
-    print "--- OK ---"
+        # scrape problems
+        for n in problem_numbers:
+            print " * Scraping problem %d." % n
+            folder.scrape_and_add_problem(n, opener=opener, force=args.force)
+
+        print "--- OK ---"
 

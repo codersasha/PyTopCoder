@@ -64,9 +64,9 @@ def %s:
 """
 
 ## test icons ##
-CHECK_MARK = u'\u2713'
-CROSS_MARK = u'\u2717'
-STOP_MARK = u'\u25A0'
+CHECK_MARK = 'Y' # u'\u2713'
+CROSS_MARK = 'N' # u'\u2717'
+STOP_MARK = 'X' # u'\u25A0'
 
 class Problem(object, IterableUserDict):
     """The class for all TopCoder problems.

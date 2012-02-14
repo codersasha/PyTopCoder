@@ -134,7 +134,7 @@ class ProblemFolder(object):
         for rel_path, number, name in problems:
             # load problem
             problem = Problem(rel_path + os.sep + (JSON_FILE_FORMAT % name))
-            print "  * Running tests for problem %d: %s *  " % (problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME])
+            print "  * Running tests for problem %d: %s *" % (problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME])
             
             # execute python file text
             python_filename = rel_path + os.sep + (PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class'])

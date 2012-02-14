@@ -44,3 +44,6 @@ $ scraper.py 10 --smart --force
 
 6) Fetch all problems between 10 and 50 on the TopCoder listing, overwriting everything:
 $ scraper.py 10,50 --smart --force
+
+7) Test problems 8, 9 and 10
+$ scraper.py 8-10 --test
