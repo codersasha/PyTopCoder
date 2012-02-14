@@ -126,6 +126,27 @@ class ProblemFolder(object):
 
         return len(problems_to_delete)
 
+    def test_problems(self, problems):
+        """Given a list of problem tuples (rel_path, number, name), runs the tests
+        for each problem.
+        Uses the method provided in the Python file in the problem directory."""
+
+        for rel_path, number, name in problems:
+            # load problem
+            problem = Problem(rel_path + os.sep + (JSON_FILE_FORMAT % name))
+            print "  * Running tests for problem %d: %s *  " % (problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME])
+            
+            # execute python file text
+            python_filename = rel_path + os.sep + (PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class'])
+            exec open(python_filename, 'rU')
+            
+            # get method
+            method = locals()[problem[P_PROBLEM_DEFINITION]['method']]
+
+            # run tests
+            problem.test_method(method)
+        
+
 ## helper functions ##
 def load_existing_problems(directory):
     """Given a directory, finds all problem folders.

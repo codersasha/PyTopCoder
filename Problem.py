@@ -19,26 +19,6 @@ P_SUBMISSION_LINK = 'submission_link'
 P_PAGE_TITLE = 'page_title'
 
 ## topcoder problem structure ##
-EMPTY_PROBLEM_DICT = {
-    P_PROBLEM_NUMBER: None,
-    P_PROBLEM_NAME: None,
-    P_PROBLEM_STATEMENT: None,
-    P_PROBLEM_DEFINITION: {
-        'class': None,
-        'method': None,
-        'types': {
-            'output': None,
-            'input': []
-        },
-        'names': {
-            'input': []
-        }
-    },
-    P_PROBLEM_CONSTRAINTS: [],
-    P_PROBLEM_EXAMPLES: [], # each example is {'input': [], 'output': None, 'comment': None}
-    P_PROBLEM_TESTS: [] # each test is {'input': [], 'output': None}
-}
-
 EMPTY_DEFINITIONS_DICT = {
     'class': None,
     'method': None,
@@ -50,7 +30,22 @@ EMPTY_DEFINITIONS_DICT = {
         'input': []
     }
 }
-EMPTY_EXAMPLE_DICT = {'input': [], 'output': None, 'comment': None}
+
+EMPTY_EXAMPLE_DICT = {
+    'input': [],
+    'output': None,
+    'comment': None
+}
+
+EMPTY_PROBLEM_DICT = {
+    P_PROBLEM_NUMBER: None,
+    P_PROBLEM_NAME: None,
+    P_PROBLEM_STATEMENT: None,
+    P_PROBLEM_DEFINITION: dict(EMPTY_DEFINITIONS_DICT),
+    P_PROBLEM_CONSTRAINTS: [],
+    P_PROBLEM_EXAMPLES: [], # each example is {'input': [], 'output': None, 'comment': None}
+    P_PROBLEM_TESTS: [] # each test is {'input': [], 'output': None}
+}
 
 ## html output parameters ##
 MAIN_HEADER_LEVEL = 1
@@ -68,15 +63,25 @@ def %s:
 
 """
 
+## test icons ##
+CHECK_MARK = u'\u2713'
+CROSS_MARK = u'\u2717'
+STOP_MARK = u'\u25A0'
+
 class Problem(object, IterableUserDict):
     """The class for all TopCoder problems.
     Inherits from IterableUserDict, and supports all regular dictionary
     access."""
 
     ## init ##
-    def __init__(self):
-        """Creates a blank problem object."""
-        self.data = dict(EMPTY_PROBLEM_DICT)
+    def __init__(self, json_filename = None):
+        """Creates a blank problem object.
+
+        If given a JSON filename, loads the data from that file."""
+        if json_filename != None:
+            self.data = json.load(open(json_filename, 'rU'))
+        else:
+            self.data = dict(EMPTY_PROBLEM_DICT)
 
     ## private object methods ##
     def _generate_signature(self):
@@ -108,14 +113,30 @@ class Problem(object, IterableUserDict):
         signature += ")"
         return signature
 
-    def _generate_filled_signature(self, inputs, output):
+    def _generate_filled_signature(self, inputs = None, output = None):
         """Returns the method signature for the problem with the given inputs
         and output, in the form
             <name>(<name>, <name>, ...) = <output>
-        e.g. MyFunc("A", 1) = 12"""
-        signature = "%s(" % self['definition']['method']
-        signature += ", ".join([str(x) for x in inputs])
-        signature += ") = %s" % output
+        e.g. MyFunc("A", 1) = 12
+        If no output is given, this does not add the equals sign.
+        Similarly, if no input is given, only adds the equals sign and the part
+        after it."""
+        signature = ""
+        
+        # add inputs
+        if inputs != None:
+            signature += "%s(" % self['definition']['method']
+            signature += ", ".join([str(x) for x in inputs])
+            signature += ")"
+
+        # separate inputs and output (if adding both)
+        if inputs != None and output != None:
+            signature += " "
+
+        # add output
+        if output != None:
+             signature += "= %s" % output
+             
         return signature
         
     def _piece_to_html(self, piece):
@@ -183,8 +204,64 @@ class Problem(object, IterableUserDict):
         """Converts the given pieces to HTML, returning them as a list."""
         return [_piece_to_html(x) for x in pieces]
 
-    ## public object methods ##
+    def _run_test_list(self, tests, method):
+        """Runs a given list of tests against the given method, returning True
+        if they all passed, False if not."""
+        for test in tests:
+            print self._generate_filled_signature(test['input']),
 
+            try:
+                result = method(*test['input'])
+                if result == None:
+                    raise Exception("Function did not return anything.")
+            
+                print self._generate_filled_signature(output=result),
+                if result != test['output']:
+                    print CROSS_MARK
+                    return False
+                print CHECK_MARK
+
+            except Exception, e:
+                print "%s (%s)" % (STOP_MARK, str(e))
+                return False
+                
+        return True
+
+    ## public object methods ##
+    def run_examples(self, method):
+        """Runs all the examples on the given method, returning True if they
+        all passed, False if not.
+        """
+        return self._run_test_list(self[P_PROBLEM_EXAMPLES], method)
+
+    def run_tests(self, method):
+        """Runs all the tests on the given method, returning True if they
+        all passed, False if not.
+        """
+        return self._run_test_list(self[P_PROBLEM_TESTS], method)
+
+    def test_method(self, method):
+        """Runs all examples and tests on the given method, returning True if
+        they all passed, False if not."""
+
+        if self[P_PROBLEM_EXAMPLES]:
+            print "-- Running examples --"
+            result = self.run_examples(method)
+            if result == False:
+                print "-- Failed --"
+                return False
+            print "-- All passed! --"
+
+        if self[P_PROBLEM_TESTS]:
+            print "-- Running tests --"
+            result = self.run_tests(method)
+            if result == False:
+                print "-- Failed --"
+                return False
+            print "-- All passed! --"
+
+        return True
+        
     # python output #
     def to_python(self, template = PYTHON_TEMPLATE):
         """Returns a Python file, with the method header, according to the
