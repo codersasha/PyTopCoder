@@ -179,7 +179,9 @@ class Problem(object, IterableUserDict):
 
     def to_json_file(self, filename):
         """Saves the problem in JSON format to the given filename."""
-        json.dump(self.data, open(filename, 'w'), indent=4)
+        json_file = open(filename, 'w')
+        json.dump(self.data, json_file, indent=4)
+        json_file.close()
 
     def to_html(self):
         """Returns the problem, as an HTML string."""
