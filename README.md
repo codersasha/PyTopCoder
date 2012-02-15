@@ -35,11 +35,11 @@ Examples
 --------
 1. See more help for the scraper.py script:
     $ scraper.py --help
-2. Fetch problems 1, 2, 3 and 5 and save them in the problems directory:
+2. Fetch problems 1, 2, 3 and 5 if I don't have them, and save them in the problems directory:
     $ scraper.py 1-3,5
 3. Fetch problem 11777 and save it in /usr/var/problems:
     $ scraper.py -o /usr/var/problems 11777
-4. Fetch problems 11777 and 117779 and overwrite everything, even the python file if it exists already:
+4. Fetch problems 11777 and 117779, even if I already have them, and overwrite everything, even the python file if it exists already:
     $ scraper.py 11777,11779 --force
 5. Fetch up to 10 new problems from TopCoder, unless I already have them
     $ scraper.py 10 --smart
@@ -49,3 +49,5 @@ Examples
     $ scraper.py 10,50 --smart --force
 8. Test problems 8, 9 and 10
     $ scraper.py 8-10 --test
+9. Test problem 8, and clean the directory afterwards
+	$ scraper.py 8 --test --clean

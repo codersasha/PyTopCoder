@@ -54,7 +54,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--smart', action="store_true",
                         help="If specified, operates in smart mode, and looks for n new problems from TopCoder. Specify two numbers to find all problems between these two numbers. Does NOT download existing problems.")
     parser.add_argument('-f', '--force', action="store_true",
-                        help="If specified, overwrites existing problem Python files, or (in smart mode) downloads problems even if they already exist.")
+                        help="If specified, overwrites existing problem Python files, and downloads problems even if they already exist.")
     parser.add_argument('-t', '--test', action="store_true",
                         help="If specified, runs tests for the specified problem numbers instead of running them.")
     parser.add_argument('-c', '--clean', action="store_true",
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # parse out problem numbers
-    problem_numbers = get_numbers_from_list(args.problems)
+    problem_input = get_numbers_from_list(args.problems)
 
     # scan output directory
     folder = ProblemFolder(args.output_dir)
@@ -82,19 +82,19 @@ if __name__ == "__main__":
         if args.smart:
             # look for problem numbers first
             print "Looking for problems...",
-            if len(problem_numbers) == 2:
-                new_ids = get_topcoder_problem_ids(opener, problem_numbers[0], problem_numbers[1])
+            if len(problem_input) == 2:
+                problem_numbers = get_topcoder_problem_ids(opener, problem_input[0], problem_input[1])
             else:
-                new_ids = get_topcoder_problem_ids(opener, problem_numbers[0])
+                problem_numbers = get_topcoder_problem_ids(opener, problem_input[0])
             print "%d problems found." % len(new_ids)
+        else:
+            problem_numbers = problem_input
 
-            # don't re-download existing problems, unless in forced mode
-            if args.force:
-                problem_numbers = new_ids
-            else:
-                existing_ids = folder.get_problem_numbers()
-                problem_numbers = [x for x in new_ids if x not in existing_ids]
-
+        # don't re-download existing problems, unless in forced mode
+        if not args.force:
+            existing_ids = folder.get_problem_numbers()
+            problem_numbers = [x for x in problem_numbers if x not in existing_ids]
+        
         print "--- Scraping %d problems ---" % len(problem_numbers)
 
         # scrape problems
