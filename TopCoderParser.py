@@ -88,11 +88,11 @@ class TopCoderParser(object):
                     
                     # get input (without HTML)
                     params_table = example_table.findAll("tr")[0].find("table")
-                    new_example['input'] = [eval_variable(x.getText()) for x in params_table.findAll("td")]
+                    new_example['input'] = [eval_variable(x.getText().strip()) for x in params_table.findAll("td")]
 
                     # get output (without HTML)
                     returns_row = example_table.findAll("tr")[1 + len(new_example['input'])]
-                    new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.DOTALL | re.IGNORECASE | re.MULTILINE)[0])
+                    new_example['output'] = eval_variable(re.findall("Returns: (.+)", returns_row.getText(), re.DOTALL | re.IGNORECASE | re.MULTILINE)[0].strip())
 
                     # get comment (with HTML)
                     comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
