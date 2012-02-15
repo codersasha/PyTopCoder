@@ -103,12 +103,13 @@ class ProblemFolder(object):
                    
         try:
             # does this problem directory already exist?
-            directory_exists = self.find_problem(path=target_dir)
-            if not directory_exists:
+            if not os.path.isdir(target_dir):
                 # create folder
                 os.mkdir(target_dir)
                 created[0] = True
 
+            # does this problem already exist?
+            if not self.find_problem(path=target_dir):
                 # save problem tuple
                 self.problems.append((target_dir, problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME]))
                 
