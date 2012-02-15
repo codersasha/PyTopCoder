@@ -111,6 +111,9 @@ def get_json(directory, problem_no):
     problem_name = folder.split('_')[1]
     
     # find the JSON
-    return json.load(open(directory + os.sep + folder + os.sep + problem_name + '.json'))
+    json_file = open(directory + os.sep + folder + os.sep + problem_name + '.json', 'rU')
+    data = json.load(json_file)
+    json_file.close()
+    return data
 
 

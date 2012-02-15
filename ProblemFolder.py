@@ -177,7 +177,9 @@ class ProblemFolder(object):
             
             # execute python file text
             python_filename = p[0] + os.sep + (PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class'])
-            exec open(python_filename, 'rU')
+            python_file = open(python_filename, 'rU')
+            exec python_file
+            python_file.close()
             
             # get method
             method = locals()[problem[P_PROBLEM_DEFINITION]['method']]
@@ -222,7 +224,7 @@ def load_existing_problems(directory):
             # load json file
             json_path = root + os.sep + json_files[0]
             try:
-                json_file = open(json_path, 'r')
+                json_file = open(json_path, 'rU')
                 data = json.load(json_file)
 
                 # add to list

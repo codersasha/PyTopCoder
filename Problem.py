@@ -79,7 +79,9 @@ class Problem(object, IterableUserDict):
 
         If given a JSON filename, loads the data from that file."""
         if json_filename != None:
-            self.data = json.load(open(json_filename, 'rU'))
+            json_file = open(json_filename, 'rU')
+            self.data = json.load(json_file)
+            json_file.close()
         else:
             self.data = dict(EMPTY_PROBLEM_DICT)
 

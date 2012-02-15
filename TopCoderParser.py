@@ -121,11 +121,11 @@ class TopCoderParser(object):
 
                 # parse test input
                 test_input_cell = test_inputs[i]
-                new_test['input'] = [eval_variable(x) for x in test_input_cell.getText().split(',\n')]
+                new_test['input'] = [eval_variable(x.strip()) for x in test_input_cell.getText().split(',\n')]
 
                 # extract test output
                 test_output_cell = test_inputs[i].parent.findAll("td")[3]
-                new_test['output'] = eval_variable(test_output_cell.getText())
+                new_test['output'] = eval_variable(test_output_cell.getText().strip())
 
                 # save test
                 tests.append(new_test)
