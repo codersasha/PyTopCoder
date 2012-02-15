@@ -24,12 +24,12 @@ class ProblemFolder(object):
         self.loc = directory
 
         # get existing problems
-        self.problems = load_existing_problems(self.loc)
+        self.problems, broken_problems = load_existing_problems(self.loc)
 
     ## public methods ##
     def get_problem_numbers(self):
         """Returns a list of all problem numbers in this directory."""
-        return [x[1] for x in self.problems]
+        return [x[1]['number'] for x in self.problems]
     
     def scrape_and_add_problem(self, n, force = False, opener = None):
         """Given a problem number, scrapes the problem and adds it to the
@@ -52,7 +52,7 @@ class ProblemFolder(object):
                 raise Exception(error_msg)
         
     def find_problem(self, name = None, number = None, path = None):
-        """Returns a list of problem tuples that match the search query."""
+        """Returns a list of problem tuples (path, problem) that match the search query."""
 
         # how many search terms were specified?
         rule_num = len([x for x in [name, number, path] if x != None])
@@ -64,16 +64,20 @@ class ProblemFolder(object):
                 if problem[0] == path:
                     score += 1
             if number != None:
-                if problem[1] == number:
+                if problem[1][P_PROBLEM_NUMBER] == number:
                     score += 1
             if name != None:
-                if problem[2] == name:
+                if problem[1][P_PROBLEM_NAME] == name:
                     score += 1
 
             if score == rule_num:
                 matches.append(problem)
                 
         return matches
+
+    def load_problem(self, problem):
+        """Takes a tuple (rel_path, incomplete problem object (at least the problem name)) and returns the full problem object."""
+        return Problem(rel_path + os.sep + (JSON_FILE_FORMAT % problem[P_PROBLEM_NAME]))
         
     def add_problem(self, problem, force = False):
         """Adds a new problem to this folder.
@@ -103,8 +107,8 @@ class ProblemFolder(object):
                 os.mkdir(target_dir)
                 created[0] = True
 
-                # save problem
-                self.problems.append((target_dir, problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME]))
+                # save problem (with all data provided)
+                self.problems.append((target_dir, problem))
                 
             # save JSON and HTML files, regardless
             problem.to_json_file(json_path)
@@ -160,13 +164,13 @@ class ProblemFolder(object):
         return len(problems_to_delete)
 
     def test_problems(self, problems):
-        """Given a list of problem tuples (rel_path, number, name), runs the tests
+        """Given a list of problem tuples (rel_path, problem), runs the tests
         for each problem.
         Uses the method provided in the Python file in the problem directory."""
 
-        for rel_path, number, name in problems:
+        for rel_path, problem in problems:
             # load problem
-            problem = Problem(rel_path + os.sep + (JSON_FILE_FORMAT % name))
+            problem = load_problem(problem)
             print "  * Running tests for problem %d: %s *" % (problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME])
             
             # execute python file text
@@ -179,6 +183,12 @@ class ProblemFolder(object):
             # run tests
             problem.test_method(method)
         
+    def clean(self):
+        """Refreshes and re-scans the directory for problems.
+        The difference between this and __init__ is that this removes all directories that contain invalid JSON files."""
+        self.problems, broken_problems = load_existing_problems(self.loc)
+        for path, problem in broken_problems:
+            shutil.rmtree(path)
 
 ## helper functions ##
 def load_existing_problems(directory):
@@ -220,6 +230,6 @@ def load_existing_problems(directory):
 
             except ValueError, e:
                 # json file could not be decoded
-                broken_problems.append((json_path, None))
+                broken_problems.append((root, None))
             
     return (problems, broken_problems)

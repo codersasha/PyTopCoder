@@ -98,7 +98,11 @@ if __name__ == "__main__":
         # scrape problems
         for n in problem_numbers:
             print " * Scraping problem %d." % n
-            folder.scrape_and_add_problem(n, opener=opener, force=args.force)
+
+            try:
+                folder.scrape_and_add_problem(n, opener=opener, force=args.force)
+            except Exception, e:
+                print "ERROR: %s" % e
 
         print "--- OK ---"
 
