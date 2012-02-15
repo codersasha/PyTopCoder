@@ -59,6 +59,8 @@ if __name__ == "__main__":
                         help="If specified, runs tests for the specified problem numbers instead of running them.")
     parser.add_argument('-c', '--clean', action="store_true",
                         help="If specified, cleans the output directory afterwards.")
+    parser.add_argument('-d', '--debug', action="store_true",
+                        help="If specified, displays the full traceback when a scraping error occurs.")
     args = parser.parse_args()
 
     # parse out problem numbers
@@ -100,11 +102,14 @@ if __name__ == "__main__":
         # scrape problems
         for n in problem_numbers:
             print " * Scraping problem %d." % n
-
-            try:
+            
+            if args.debug:
                 folder.scrape_and_add_problem(n, opener=opener, force=args.force)
-            except Exception, e:
-                print "ERROR: %s" % e
+            else:
+                try:
+                    folder.scrape_and_add_problem(n, opener=opener, force=args.force)
+                except Exception, e:
+                    print "ERROR: %s" % e
 
         print "--- OK ---"
 
