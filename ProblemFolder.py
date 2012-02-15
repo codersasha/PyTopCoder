@@ -186,11 +186,19 @@ class ProblemFolder(object):
             problem.test_method(method)
         
     def clean(self):
-        """Refreshes and re-scans the directory for problems.
-        The difference between this and __init__ is that this removes all directories that contain invalid JSON files."""
-        self.problems, broken_problems = load_existing_problems(self.loc)
+        """Refreshes and re-scans the directory for problems, as well as re-creating missing files.
+        The difference between this and __init__ is that this removes all directories that contain
+        invalid JSON files, as well as recreating HTML files."""
+        problems, broken_problems = load_existing_problems(self.loc)
+        self.problems = []
+
+        # remove broken problems
         for path in broken_problems:
             shutil.rmtree(path)
+
+        # recreate missing files
+        for path, number, name in self.problems:
+            self.add_problem(Problem(path + os.sep + (JSON_FILE_FORMAT % name)))
 
 ## helper functions ##
 def load_existing_problems(directory):
