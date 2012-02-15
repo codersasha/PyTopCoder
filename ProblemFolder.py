@@ -45,8 +45,11 @@ class ProblemFolder(object):
         if problem:
             # save problem
             print "Saving files...",
-            self.add_problem(problem, force)
-            print "OK"
+            error_msg = self.add_problem(problem, force)
+            if error_msg == None:
+                print "OK"
+            else:
+                raise Exception(error_msg)
         
     def find_problem(self, name = None, number = None, path = None):
         """Returns a list of problem tuples that match the search query."""
@@ -76,6 +79,7 @@ class ProblemFolder(object):
         """Adds a new problem to this folder.
         If this problem already exists, overwrites the description files (but
         not any Python scripts, unless force is True).
+        Returns None if it succeeded, an error message on error.
         """
 
         # decide where to save this problem
@@ -83,31 +87,60 @@ class ProblemFolder(object):
         target_dir = self.loc + os.sep + problem_foldername
 
         # decide on filenames
-        json_filename = JSON_FILE_FORMAT % problem[P_PROBLEM_NAME]
-        html_filename = HTML_FILE_FORMAT % problem[P_PROBLEM_NAME]
-        python_filename = PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class']
-        init_filename = INIT_FILE_FORMAT
+        json_path = target_dir + os.sep + (JSON_FILE_FORMAT % problem[P_PROBLEM_NAME])
+        html_path = target_dir + os.sep + (HTML_FILE_FORMAT % problem[P_PROBLEM_NAME])
+        python_path = target_dir + os.sep + (PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class'])
+        init_path = target_dir + os.sep + (INIT_FILE_FORMAT)
 
-        # does this problem directory already exist?
-        directory_exists = self.find_problem(path=target_dir)
-        if not directory_exists:
-            # create folder
-            os.mkdir(target_dir)
+        # track progress (each stage)
+        created = [False] * 5
+                   
+        try:
+            # does this problem directory already exist?
+            directory_exists = self.find_problem(path=target_dir)
+            if not directory_exists:
+                # create folder
+                os.mkdir(target_dir)
+                created[0] = True
 
-            # save problem
-            self.problems.append((target_dir, problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME]))
+                # save problem
+                self.problems.append((target_dir, problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME]))
+                
+            # save JSON and HTML files, regardless
+            problem.to_json_file(json_path)
+            created[1] = True
+            problem.to_html_file(html_path)
+            created[2] = True
 
-        # save JSON and HTML files, regardless
-        problem.to_json_file(target_dir + os.sep + json_filename)
-        problem.to_html_file(target_dir + os.sep + html_filename)
+            # check if python file exists: if it doesn't, create it
+            if force or not os.access(python_path, os.F_OK):
+                problem.to_python_file(python_path)
+                created[3] = True
 
-        # check if python file exists: if it doesn't, create it
-        if force or not os.access(target_dir + os.sep + python_filename, os.F_OK):
-            problem.to_python_file(target_dir + os.sep + python_filename)
+            # create init file, if it doesn't exist
+            if force or not os.access(init_path, os.F_OK):
+                open(init_path, 'w').close()
+                created[4] = True
 
-        # create init file, if it doesn't exist
-        if force or not os.access(target_dir + os.sep + init_filename, os.F_OK):
-            open(target_dir + os.sep + init_filename, 'w').close()
+            return None
+
+        except Exception, e:
+            # error when saving: delete all files created
+            if created[0]:
+                # delete everything
+                shutil.rmtree(target_dir)
+            else:
+                # only delete what was created
+                if created[1]:
+                    os.remove(json_path)
+                if created[2]:
+                    os.remove(html_path)
+                if created[3]:
+                    os.remove(python_path)
+                if created[4]:
+                    os.remove(init_path)
+
+            return str(e)
 
     def del_problem(self, problem):
         """Deletes all problems with the same name and number as the given problem.
@@ -150,36 +183,43 @@ class ProblemFolder(object):
 ## helper functions ##
 def load_existing_problems(directory):
     """Given a directory, finds all problem folders.
-    Returns a list of tuples (rel_path, number, name) for each problem in the directory.
-    e.g. [('./47_WordFilter/problem', 47, 'WordFilter']
+    Returns two lists:
+      - the first is a list of all valid problem files in the directory, as a tuple (path, problem)
+        (the problem object only contains the problem name and number)
+      - the second is a list of all problem folders that contain invalid JSON, as a tuple (path, None)
+    e.g. [('./47_WordFilter/problem', {47, 'WordFilter'}]
 
     A problem directory is valid if there is a single JSON file inside the
     directory, in the correct format.
     """
 
     problems = []
+    broken_problems = []
 
     for root, dirs, files in os.walk(directory):
         # is there only 1 JSON file?
         json_files = [x for x in files if os.path.splitext(x)[1].lower() == '.json']
         if len(json_files) == 1:
             # load json file
+            json_path = root + os.sep + json_files[0]
             try:
-                json_file = open(root + os.sep + json_files[0], 'r')
+                json_file = open(json_path, 'r')
                 data = json.load(json_file)
+                problem = Problem()
             
                 # get name and number
-                n = data[P_PROBLEM_NUMBER]
-                name = data[P_PROBLEM_NAME]
+                problem['number'] = data[P_PROBLEM_NUMBER]
+                problem['name'] = data[P_PROBLEM_NAME]
 
                 # close json file
                 json_file.close()
                 del data
 
                 # add to list
-                problems.append((root, n, name))
+                problems.append((root, problem))
 
-            except Exception, e:
-                print "Could not load file %s: %s" % (root + os.sep + json_files[0], e)
+            except ValueError, e:
+                # json file could not be decoded
+                broken_problems.append((json_path, None))
             
-    return problems
+    return (problems, broken_problems)
