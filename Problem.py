@@ -155,7 +155,7 @@ class Problem(object, IterableUserDict):
             return html_text(self[piece])
 
         elif piece == P_PROBLEM_DEFINITION:
-            html = ""
+            html = u""
             html += html_header(SUB_HEADER_LEVEL, "Filename")
             html += html_text("%s.py" % self[piece]['class'])
             
@@ -168,7 +168,7 @@ class Problem(object, IterableUserDict):
             return "<ul><li>" + "</li><li>".join(self[piece]) + "</li></ul>"
 
         elif piece == P_PROBLEM_EXAMPLES:
-            html = ""
+            html = u""
             html += "<ul>"
             for example in self[piece]:
                 html += "<li>"

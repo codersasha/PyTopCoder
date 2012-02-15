@@ -85,7 +85,6 @@ class ProblemFolder(object):
         """Adds a new problem to this folder.
         If this problem already exists, overwrites the description files (but
         not any Python scripts, unless force is True).
-        Returns None if it succeeded, an error message on error.
         """
 
         # decide where to save this problem
@@ -98,56 +97,28 @@ class ProblemFolder(object):
         python_path = target_dir + os.sep + (PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class'])
         init_path = target_dir + os.sep + (INIT_FILE_FORMAT)
 
-        # track progress (each stage)
-        created = [False] * 5
-                   
-        try:
-            # does this problem directory already exist?
-            if not os.path.isdir(target_dir):
-                # create folder
-                os.mkdir(target_dir)
-                created[0] = True
 
-            # does this problem already exist?
-            if not self.find_problem(path=target_dir):
-                # save problem tuple
-                self.problems.append((target_dir, problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME]))
-                
-            # save JSON and HTML files, regardless
-            problem.to_json_file(json_path)
-            created[1] = True
-            problem.to_html_file(html_path)
-            created[2] = True
+        # does this problem directory already exist?
+        if not os.path.isdir(target_dir):
+            # create folder
+            os.mkdir(target_dir)
 
-            # check if python file exists: if it doesn't, create it
-            if force or not os.access(python_path, os.F_OK):
-                problem.to_python_file(python_path)
-                created[3] = True
+        # does this problem already exist?
+        if not self.find_problem(path=target_dir):
+            # save problem tuple
+            self.problems.append((target_dir, problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME]))
+            
+        # save JSON and HTML files, regardless
+        problem.to_json_file(json_path)
+        problem.to_html_file(html_path)
 
-            # create init file, if it doesn't exist
-            if force or not os.access(init_path, os.F_OK):
-                open(init_path, 'w').close()
-                created[4] = True
+        # check if python file exists: if it doesn't, create it
+        if force or not os.access(python_path, os.F_OK):
+            problem.to_python_file(python_path)
 
-            return None
-
-        except Exception, e:
-            # error when saving: delete all files created
-            if created[0]:
-                # delete everything
-                shutil.rmtree(target_dir)
-            else:
-                # only delete what was created
-                if created[1]:
-                    os.remove(json_path)
-                if created[2]:
-                    os.remove(html_path)
-                if created[3]:
-                    os.remove(python_path)
-                if created[4]:
-                    os.remove(init_path)
-
-            return str(e)
+        # create init file, if it doesn't exist
+        if force or not os.access(init_path, os.F_OK):
+            open(init_path, 'w').close()
 
     def del_problem(self, problem):
         """Deletes all problems with the same name and number as the given problem.
