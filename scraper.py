@@ -57,6 +57,8 @@ if __name__ == "__main__":
                         help="If specified, overwrites existing problem Python files, or (in smart mode) downloads problems even if they already exist.")
     parser.add_argument('-t', '--test', action="store_true",
                         help="If specified, runs tests for the specified problem numbers instead of running them.")
+    parser.add_argument('-c', '--clean', action="store_true",
+                        help="If specified, cleans the output directory afterwards.")
     args = parser.parse_args()
 
     # parse out problem numbers
@@ -106,3 +108,7 @@ if __name__ == "__main__":
 
         print "--- OK ---"
 
+    if args.clean:
+        print "Cleaning problems directory...",
+        folder.clean()
+        print "OK"
