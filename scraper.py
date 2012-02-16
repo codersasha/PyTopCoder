@@ -88,7 +88,7 @@ if __name__ == "__main__":
                 problem_numbers = get_topcoder_problem_ids(opener, problem_input[0], problem_input[1])
             else:
                 problem_numbers = get_topcoder_problem_ids(opener, problem_input[0])
-            print "%d problems found." % len(new_ids)
+            print "%d problems found." % len(problem_numbers)
         else:
             problem_numbers = problem_input
 
