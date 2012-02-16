@@ -107,7 +107,7 @@ class TopCoderParser(object):
             return 'http://community.topcoder.com' + contest_link
 
         elif piece == P_SUBMISSION_LINK:
-            submission_link = self.soup.find("a", {"href": re.compile("/stat\?c=problem_solution&.+")})
+            submission_link = self.soup.find("a", {"href": re.compile("(/stat\?c=problem_solution&.+)|(/tc\?module=HSProblemSolution&.+)")})
             if submission_link:
                 return 'http://community.topcoder.com' + submission_link['href']
             return None
@@ -219,15 +219,21 @@ def scrape_problem(n, opener = None):
 
     # load submission listing page and scrape submission link
     print "Loading submission listing page...",
-    submission_listing_page_html = open_page(opener, problem[P_SUBMISSION_LISTING_LINK])
-    problem = TopCoderParser(submission_listing_page_html).parse_submission_listing_page(problem)
-    print "OK"
+    if problem[P_SUBMISSION_LISTING_LINK]:
+        submission_listing_page_html = open_page(opener, problem[P_SUBMISSION_LISTING_LINK])
+        problem = TopCoderParser(submission_listing_page_html).parse_submission_listing_page(problem)
+        print "OK"
 
-    # load submission page and scrape tests
-    print "Loading submission page...",
-    submission_page_html = open_page(opener, problem[P_SUBMISSION_LINK])
-    problem = TopCoderParser(submission_page_html).parse_submission_page(problem)
-    print "OK"
+        print "Loading submission page...",
+        if problem[P_SUBMISSION_LINK]:
+            # load submission page and scrape tests
+            submission_page_html = open_page(opener, problem[P_SUBMISSION_LINK])
+            problem = TopCoderParser(submission_page_html).parse_submission_page(problem)
+            print "OK"
+        else:
+            print "WARNING: Problem has no submissions."
+    else:
+        print "WARNING: Problem was not used in any competitions."
 
     # remove the links
     del problem[P_SUBMISSION_LISTING_LINK]

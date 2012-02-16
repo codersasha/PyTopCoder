@@ -76,7 +76,8 @@ def eval_variable(data):
         return False
     if data[0] == "{":
         # preserve order (don't use sets)
-        return list(eval("[" + data[1:-1] + "]"))
+        # replace('`', '') is a fix for problem #8394
+        return list(eval(data.replace("{", "[").replace("}", "]").replace('`', '')))
     if data[0] in ['"', "'"]:
         return str(eval(data)).strip("'\"")
     if data[0] in string.ascii_letters:

@@ -52,6 +52,7 @@ EMPTY_PROBLEM_DICT = {
 MAIN_HEADER_LEVEL = 1
 HEADER_LEVEL = 2
 SUB_HEADER_LEVEL = 3
+HTML_FILE_CODEC = 'utf-8'
 
 ## JSON output parameters ##
 JSON_INDENT_LEVEL = 4
@@ -176,7 +177,7 @@ class Problem(object, IterableUserDict):
                 html += self._generate_filled_signature(example['input'], example['output'])
 
                 if example['comment']:
-                    html += example['comment'].decode('ascii', 'ignore')
+                    html += example['comment'].decode('utf-8')
                 
                 html += "</li>"
 
@@ -319,7 +320,7 @@ class Problem(object, IterableUserDict):
     def to_html_file(self, filename):
         """Saves the problem in HTML format to the given filename.
         Writes in the given html encoding."""
-        html_file = open(filename, 'w')
+        html_file = codecs.open(filename, 'w', HTML_FILE_CODEC)
         html_file.write(self.to_html())
         html_file.close()
 
