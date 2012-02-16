@@ -35,7 +35,7 @@ def open_page(opener, url):
     resp = opener.open(url)
     encoding = resp.headers['content-type'].split('charset=')[-1]
     pagedata = resp.read()
-    return unescape(unicode(pagedata, encoding)).decode('ascii', 'ignore')
+    return unescape(unicode(pagedata, encoding))
 
 def remove_empty_tags(soup, tag_name, recursive=False):
     """Given a tag name, removes all tags with that name from the soup if they
