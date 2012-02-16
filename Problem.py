@@ -1,4 +1,5 @@
 import json
+import codecs
 from UserDict import IterableUserDict
 
 ## topcoder problem pieces ##
@@ -155,7 +156,7 @@ class Problem(object, IterableUserDict):
             return html_text(self[piece])
 
         elif piece == P_PROBLEM_DEFINITION:
-            html = u""
+            html = ""
             html += html_header(SUB_HEADER_LEVEL, "Filename")
             html += html_text("%s.py" % self[piece]['class'])
             
@@ -168,14 +169,14 @@ class Problem(object, IterableUserDict):
             return "<ul><li>" + "</li><li>".join(self[piece]) + "</li></ul>"
 
         elif piece == P_PROBLEM_EXAMPLES:
-            html = u""
+            html = ""
             html += "<ul>"
             for example in self[piece]:
                 html += "<li>"
                 html += self._generate_filled_signature(example['input'], example['output'])
 
                 if example['comment']:
-                    html += html_text(example['comment'])
+                    html += example['comment'].decode('ascii', 'ignore')
                 
                 html += "</li>"
 
@@ -292,7 +293,7 @@ class Problem(object, IterableUserDict):
     def to_html(self):
         """Returns the problem, as an HTML string."""
 
-        html = ""
+        html = u""
 
         # add title
         html += "<html><head><title>%s</title></head><body>" % self._piece_to_html(P_PAGE_TITLE)
@@ -316,7 +317,8 @@ class Problem(object, IterableUserDict):
         return html
 
     def to_html_file(self, filename):
-        """Saves the problem in HTML format to the given filename."""
+        """Saves the problem in HTML format to the given filename.
+        Writes in the given html encoding."""
         html_file = open(filename, 'w')
         html_file.write(self.to_html())
         html_file.close()

@@ -30,10 +30,12 @@ def unescape(s):
               lambda m: unichr(name2codepoint[m.group(1)]), s)
 
 def open_page(opener, url):
-    """Opens a page with the given opener, returning the page's HTML."""
+    """Opens a page with the given opener, returning the page's HTML.
+    The returned HTML is a unicode string, with all HTML code refs unescaped."""
     resp = opener.open(url)
+    encoding = resp.headers['content-type'].split('charset=')[-1]
     pagedata = resp.read()
-    return unescape(pagedata)
+    return unescape(unicode(pagedata, encoding)).decode('ascii', 'ignore')
 
 def remove_empty_tags(soup, tag_name, recursive=False):
     """Given a tag name, removes all tags with that name from the soup if they
