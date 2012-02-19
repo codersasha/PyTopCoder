@@ -1,14 +1,7 @@
 {
     "definition": {
+        "class": "BuildingReorganization", 
         "method": "theMin", 
-        "names": {
-            "input": [
-                "heights", 
-                "A", 
-                "B", 
-                "cost"
-            ]
-        }, 
         "types": {
             "output": "long", 
             "input": [
@@ -18,7 +11,14 @@
                 "int"
             ]
         }, 
-        "class": "BuildingReorganization"
+        "names": {
+            "input": [
+                "heights", 
+                "A", 
+                "B", 
+                "cost"
+            ]
+        }
     }, 
     "tests": [
         {
@@ -3694,14 +3694,6 @@
         }
     ], 
     "name": "BuildingReorganization", 
-    "statement": "<td class=\"statText\">The greatest king of all times, Michael IV, is going to make big changes in the capital of his kingdom.\n<br /><br />\nThere are N buildings in the capital. They are located in a row and numbered 0, 1, ..., N-1 from left to right. The height of building i is <b>heights</b>[i] floors. Each floor of each building has the shape of a unit cube.\n<br /><br />\nThe current state of the capital is miserable: there are just buildings and no infrastructure, so people are unhappy. Michael decided to deconstruct two buildings and to build a mall and an entertainment center in their locations. The buildings that Michael wants to deconstruct have numbers <b>A</b> and <b>B</b>.\n<br /><br />\nDeconstruction of buildings is a non-trivial process. It is organized as a sequence of operations. Each operation consists of exactly 4 steps:\n<ol>\n<li>Choose one of two deconstructed buildings (<b>A</b> or <b>B</b>). Let X be the chosen building.</li>\n<li>Lower the topmost floor in X to the ground in front of building X. Lowering the floor by a unit of distance costs 1 coin. I.e., if the building now has H floors, the total cost of lowering the topmost floor is H-1 coins. Note that once we lower the topmost floor, the new height of the building becomes H-1.</li>\n<li>Choose a building Y different from <b>A</b> and <b>B</b>. Move the floor from the ground in front of building X to the ground in front of building Y. This operation costs <b>cost</b> * |X - Y| coins.</li>\n<li>Lift the floor onto the top of building Y. Lifting the floor by a unit of distance has the same cost as lowering it. I.e., it costs H coins to lift the currently processed floor on the top of a building that currently has H floors. Note that once we are done, the new height of building Y will be H+1.</li>\n</ol>\nThe deconstruction process is finished once both buildings <b>A</b> and <b>B</b> have no floors anymore.\n<br /><br />\nReturn the minimum possible total cost of the whole process, in coins.</td>", 
-    "constraints": [
-        "<td class=\"statText\"><b>heights</b> will contain exactly N elements, where N is between 3 and 50, inclusive.</td>", 
-        "<td class=\"statText\">Each element of <b>heights</b> will be between 1 and 500,000,000, inclusive.</td>", 
-        "<td class=\"statText\"><b>A</b> will be between 0 and N - 2, inclusive.</td>", 
-        "<td class=\"statText\"><b>B</b> will be between <b>A</b> + 1 and N - 1, inclusive.</td>", 
-        "<td class=\"statText\"><b>cost</b> will be between 1 and 10,000,000, inclusive.</td>"
-    ], 
     "number": 11777, 
     "examples": [
         {
@@ -3880,5 +3872,13 @@
             ], 
             "output": 234928185619577559
         }
+    ], 
+    "statement": "<td class=\"statText\">The greatest king of all times, Michael IV, is going to make big changes in the capital of his kingdom.\n<br /><br />\nThere are N buildings in the capital. They are located in a row and numbered 0, 1, ..., N-1 from left to right. The height of building i is <b>heights</b>[i] floors. Each floor of each building has the shape of a unit cube.\n<br /><br />\nThe current state of the capital is miserable: there are just buildings and no infrastructure, so people are unhappy. Michael decided to deconstruct two buildings and to build a mall and an entertainment center in their locations. The buildings that Michael wants to deconstruct have numbers <b>A</b> and <b>B</b>.\n<br /><br />\nDeconstruction of buildings is a non-trivial process. It is organized as a sequence of operations. Each operation consists of exactly 4 steps:\n<ol>\n<li>Choose one of two deconstructed buildings (<b>A</b> or <b>B</b>). Let X be the chosen building.</li>\n<li>Lower the topmost floor in X to the ground in front of building X. Lowering the floor by a unit of distance costs 1 coin. I.e., if the building now has H floors, the total cost of lowering the topmost floor is H-1 coins. Note that once we lower the topmost floor, the new height of the building becomes H-1.</li>\n<li>Choose a building Y different from <b>A</b> and <b>B</b>. Move the floor from the ground in front of building X to the ground in front of building Y. This operation costs <b>cost</b> * |X - Y| coins.</li>\n<li>Lift the floor onto the top of building Y. Lifting the floor by a unit of distance has the same cost as lowering it. I.e., it costs H coins to lift the currently processed floor on the top of a building that currently has H floors. Note that once we are done, the new height of building Y will be H+1.</li>\n</ol>\nThe deconstruction process is finished once both buildings <b>A</b> and <b>B</b> have no floors anymore.\n<br /><br />\nReturn the minimum possible total cost of the whole process, in coins.</td>", 
+    "constraints": [
+        "<td class=\"statText\"><b>heights</b> will contain exactly N elements, where N is between 3 and 50, inclusive.</td>", 
+        "<td class=\"statText\">Each element of <b>heights</b> will be between 1 and 500,000,000, inclusive.</td>", 
+        "<td class=\"statText\"><b>A</b> will be between 0 and N - 2, inclusive.</td>", 
+        "<td class=\"statText\"><b>B</b> will be between <b>A</b> + 1 and N - 1, inclusive.</td>", 
+        "<td class=\"statText\"><b>cost</b> will be between 1 and 10,000,000, inclusive.</td>"
     ]
 }
