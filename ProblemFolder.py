@@ -97,7 +97,6 @@ class ProblemFolder(object):
         python_path = target_dir + os.sep + (PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class'])
         init_path = target_dir + os.sep + (INIT_FILE_FORMAT)
 
-
         # does this problem directory already exist?
         if not os.path.isdir(target_dir):
             # create folder

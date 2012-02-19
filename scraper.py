@@ -104,8 +104,10 @@ if __name__ == "__main__":
             print " * Scraping problem %d." % n
             
             if args.debug:
+                # display errors
                 folder.scrape_and_add_problem(n, opener=opener, force=args.force)
             else:
+                # catch errors
                 try:
                     folder.scrape_and_add_problem(n, opener=opener, force=args.force)
                 except Exception, e:
