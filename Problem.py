@@ -1,5 +1,4 @@
 import json
-import codecs
 from UserDict import IterableUserDict
 
 ## topcoder problem pieces ##
@@ -52,7 +51,6 @@ EMPTY_PROBLEM_DICT = {
 MAIN_HEADER_LEVEL = 1
 HEADER_LEVEL = 2
 SUB_HEADER_LEVEL = 3
-HTML_FILE_CODEC = 'utf-8'
 
 ## JSON output parameters ##
 JSON_INDENT_LEVEL = 4
@@ -177,7 +175,7 @@ class Problem(object, IterableUserDict):
                 html += self._generate_filled_signature(example['input'], example['output'])
 
                 if example['comment']:
-                    html += example['comment'].decode('utf-8')
+                    html += example['comment']
                 
                 html += "</li>"
 
@@ -315,12 +313,13 @@ class Problem(object, IterableUserDict):
             html += html_header(2, "Examples")
             html += self._piece_to_html(P_PROBLEM_EXAMPLES)
 
-        return html
+        # escape non-ascii characters with HTML
+        return html.encode('ascii', 'xmlcharrefreplace')
 
     def to_html_file(self, filename):
         """Saves the problem in HTML format to the given filename.
         Writes in the given html encoding."""
-        html_file = codecs.open(filename, 'w', HTML_FILE_CODEC)
+        html_file = open(unicode(filename), 'w')
         html_file.write(self.to_html())
         html_file.close()
 

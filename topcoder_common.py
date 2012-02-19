@@ -35,7 +35,7 @@ def open_page(opener, url):
     resp = opener.open(url)
     encoding = resp.headers['content-type'].split('charset=')[-1]
     pagedata = resp.read()
-    return unescape(unicode(pagedata, encoding))
+    return unescape(pagedata.decode(encoding))
 
 def remove_empty_tags(soup, tag_name, recursive=False):
     """Given a tag name, removes all tags with that name from the soup if they
@@ -46,6 +46,14 @@ def remove_empty_tags(soup, tag_name, recursive=False):
         if not tag.text:
             tag.extract()
     return new_soup
+
+def extract_html(tag):
+    """Returns the HTML of a tag, in unicode, without any HTML entities or
+    empty tags."""
+    s = unescape(remove_all_empty_tags(tag).renderContents())
+    if type(s) != unicode:
+        return s.decode('utf-8')
+    return s
 
 ## topcoder-specific functions ##
 def connect_to_topcoder(username = TOPCODER_DEFAULT_USER, password = TOPCODER_DEFAULT_PASS):

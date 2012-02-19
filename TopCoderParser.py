@@ -44,7 +44,7 @@ class TopCoderParser(object):
         elif piece == P_PROBLEM_STATEMENT:
             # get problem statement (with HTML)
             problem_statement_tag = self.soup.find("td", {"class": "problemText"}).findAll("td", {"class": "statText"})[2]
-            return remove_all_empty_tags(problem_statement_tag).renderContents()
+            return extract_html(problem_statement_tag)
 
         elif piece == P_PROBLEM_DEFINITION:
             # get problem definition (without HTML)
@@ -72,7 +72,7 @@ class TopCoderParser(object):
                 constraints = []
                 constraint_bullets = constraints_header.parent.parent.parent.findAllNext("td", text="-")
                 for bullet in constraint_bullets:
-                    constraints.append(remove_all_empty_tags(bullet.parent.parent.findAll("td")[1]).renderContents())
+                    constraints.append(extract_html(bullet.parent.parent.findAll("td")[1]))
                 return constraints
             else:
                 return None
@@ -96,7 +96,7 @@ class TopCoderParser(object):
 
                     # get comment (with HTML)
                     comments_row = example_table.findAll("tr")[2 + len(new_example['input'])]
-                    new_example['comment'] = remove_all_empty_tags(comments_row.find("td")).renderContents()
+                    new_example['comment'] = extract_html(comments_row.find("td"))
 
                     # save example
                     examples.append(new_example)
