@@ -64,7 +64,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # parse out problem numbers
-    problem_input = get_numbers_from_list(args.problems)
+    problem_input = sorted(get_numbers_from_list(args.problems))
 
     # scan output directory
     folder = ProblemFolder(args.output_dir)
