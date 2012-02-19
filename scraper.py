@@ -58,7 +58,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--test', action="store_true",
                         help="If specified, runs tests for the specified problem numbers instead of running them.")
     parser.add_argument('-c', '--clean', action="store_true",
-                        help="If specified, cleans the output directory afterwards.")
+                        help="If specified, cleans the output directory first.")
     parser.add_argument('-d', '--debug', action="store_true",
                         help="If specified, displays the full traceback when a scraping error occurs.")
     args = parser.parse_args()
@@ -68,6 +68,11 @@ if __name__ == "__main__":
 
     # scan output directory
     folder = ProblemFolder(args.output_dir)
+
+    if args.clean:
+        print "Cleaning problems directory...",
+        folder.clean()
+        print "OK"
 
     if args.test:
         # test specified problems
@@ -114,8 +119,4 @@ if __name__ == "__main__":
                     print "ERROR: %s" % e
 
         print "--- OK ---"
-
-    if args.clean:
-        print "Cleaning problems directory...",
-        folder.clean()
-        print "OK"
+        

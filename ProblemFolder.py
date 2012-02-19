@@ -162,7 +162,7 @@ class ProblemFolder(object):
         """Refreshes and re-scans the directory for problems, as well as re-creating missing files.
         The difference between this and __init__ is that this removes all directories that contain
         invalid JSON files, as well as recreating HTML files."""
-        problems, broken_problems = load_existing_problems(self.loc)
+        working_problems, broken_problems = load_existing_problems(self.loc)
         self.problems = []
 
         # remove broken problems
@@ -170,7 +170,7 @@ class ProblemFolder(object):
             shutil.rmtree(path)
 
         # recreate missing files
-        for path, number, name in self.problems:
+        for path, number, name in working_problems:
             self.add_problem(Problem(path + os.sep + (JSON_FILE_FORMAT % name)))
 
 ## helper functions ##
