@@ -49,5 +49,5 @@ Examples
     $ scraper.py 10,50 --smart --force
 8. Test problems 8, 9 and 10
     $ scraper.py 8-10 --test
-9. Test problem 8, and clean the directory afterwards
+9. Test problem 8, cleaning the problems directory first
 	$ scraper.py 8 --test --clean

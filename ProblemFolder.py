@@ -146,14 +146,15 @@ class ProblemFolder(object):
             problem = self.load_problem(p)
             print "  * Running tests for problem %d: %s *" % (problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME])
             
-            # execute python file text
+            # execute python file text in namespace ns
+            ns = {}
             python_filename = p[0] + os.sep + (PYTHON_FILE_FORMAT % problem[P_PROBLEM_DEFINITION]['class'])
             python_file = open(python_filename, 'rU')
-            exec python_file
+            exec python_file in ns
             python_file.close()
             
             # get method
-            method = locals()[problem[P_PROBLEM_DEFINITION]['method']]
+            method = ns[problem[P_PROBLEM_DEFINITION]['method']]
 
             # run tests
             problem.test_method(method)
