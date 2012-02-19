@@ -137,7 +137,7 @@ class Problem(object, IterableUserDict):
 
         # add output
         if output != None:
-             signature += "= %s" % output
+             signature += "= %r" % output
              
         return signature
         
