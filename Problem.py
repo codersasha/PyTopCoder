@@ -128,7 +128,7 @@ class Problem(object, IterableUserDict):
         # add inputs
         if inputs != None:
             signature += "%s(" % self['definition']['method']
-            signature += ", ".join([str(x) for x in inputs])
+            signature += ", ".join([repr(x) for x in inputs])
             signature += ")"
 
         # separate inputs and output (if adding both)
