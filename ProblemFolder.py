@@ -79,7 +79,7 @@ class ProblemFolder(object):
 
     def load_problem(self, problem):
         """Takes a tuple (rel_path, number, name) and returns the full problem object."""
-        return Problem(rel_path + os.sep + (JSON_FILE_FORMAT % name))
+        return Problem(problem[0] + os.sep + (JSON_FILE_FORMAT % problem[2]))
         
     def add_problem(self, problem, force = False):
         """Adds a new problem to this folder.
@@ -143,7 +143,7 @@ class ProblemFolder(object):
 
         for p in problems:
             # load problem
-            problem = load_problem(p)
+            problem = self.load_problem(p)
             print "  * Running tests for problem %d: %s *" % (problem[P_PROBLEM_NUMBER], problem[P_PROBLEM_NAME])
             
             # execute python file text

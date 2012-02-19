@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     if args.test:
         # test specified problems
-        for n in problem_numbers:
+        for n in problem_input:
             folder.test_problems(folder.find_problem(number = n))
 
     else:
