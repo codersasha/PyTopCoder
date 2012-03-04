@@ -31,6 +31,24 @@ Features
 * Comes with an automated marking script, marker.py, which can read the JSON file and mark a TopCoder.com problem attempt written in Python
 * Can be used for building Python TopCoder testing suites
 
+Getting started
+---------------
+1. Download the first 10 problems from TopCoder
+    $ scraper.py -scf 10
+2. Open the corresponding python files for each problem in the ./problems directory
+3. Test each problem using TopCoder's test set. For example, test your code for problem 11777 using:
+    $ scraper.py -t 11777
+
+Tutorial
+--------
+1. Download problem 11777, overwriting any existing ones, and cleaning the problems directory.
+    $ scraper.py -cf 11777
+2. Open the corresponding file for problem 11777, and add your code to it
+    $ cd problems/11777_BuildingReorganization
+    $ vim BuildingReorganization.py
+3. Test your code
+    $ scraper.py -t 11777
+
 Examples
 --------
 1. See more help for the scraper.py script:
