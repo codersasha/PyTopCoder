@@ -45,8 +45,8 @@ Getting started
     $ scraper.py -t 11777
     ```
 
-Tutorial
---------
+Tutorial - how to attempt problem 11777
+---------------------------------------
 1. Download problem 11777, overwriting any existing ones, and cleaning the problems directory.
 
     ```bash
