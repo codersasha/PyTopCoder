@@ -34,10 +34,10 @@ Features
 Getting started
 ---------------
 1. Download the first 10 problems from TopCoder
-    $ scraper.py -scf 10
+       $ scraper.py -scf 10
 2. Open the corresponding python files for each problem in the ./problems directory
 3. Test each problem using TopCoder's test set. For example, test your code for problem 11777 using:
-    $ scraper.py -t 11777
+       $ scraper.py -t 11777
 
 Tutorial
 --------
