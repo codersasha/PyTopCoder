@@ -6,7 +6,7 @@ A scraper for the website www.topcoder.com.
 Given a problem number, this script downloads all information about the problem from the website, and creates:
 
 * A directory with the class name and problem number
-* An __init__.py file
+* An \_\_init\_\_.py file
 * A .json file with all problem information
 * A .html file with all problem information
 * A .py file (with the method header)
