@@ -34,38 +34,89 @@ Features
 Getting started
 ---------------
 1. Download the first 10 problems from TopCoder
-       $ scraper.py -scf 10
+    
+    ```bash
+    $ scraper.py -scf 10
+    ```
 2. Open the corresponding python files for each problem in the ./problems directory
 3. Test each problem using TopCoder's test set. For example, test your code for problem 11777 using:
-       $ scraper.py -t 11777
+
+    ```bash
+    $ scraper.py -t 11777
+    ```
 
 Tutorial
 --------
 1. Download problem 11777, overwriting any existing ones, and cleaning the problems directory.
+
+    ```bash
     $ scraper.py -cf 11777
 2. Open the corresponding file for problem 11777, and add your code to it
+
+    ```bash
     $ cd problems/11777_BuildingReorganization
     $ vim BuildingReorganization.py
+    ```
+    
 3. Test your code
+
+    ```bash
     $ scraper.py -t 11777
+    ```
 
 Examples
 --------
 1. See more help for the scraper.py script:
+
+    ```bash
     $ scraper.py --help
+    ```
+    
 2. Fetch problems 1, 2, 3 and 5 if I don't have them, and save them in the problems directory:
+
+    ```bash
     $ scraper.py 1-3,5
+    ```
+    
 3. Fetch problem 11777 and save it in /usr/var/problems:
+
+    ```bash
     $ scraper.py -o /usr/var/problems 11777
+    ```
+    
 4. Fetch problems 11777 and 117779, even if I already have them, and overwrite everything, even the python file if it exists already:
+
+    ```bash
     $ scraper.py 11777,11779 --force
+    ```
+    
 5. Fetch up to 10 new problems from TopCoder, unless I already have them
+
+    ```bash
     $ scraper.py 10 --smart
+    ```
+    
 6. Fetch 10 new problems from TopCoder, downloading them even if I have them already, and overwriting everything:
+
+    ```bash
     $ scraper.py 10 --smart --force
+    ```
+    
 7. Fetch all problems between 10 and 50 on the TopCoder listing, overwriting everything:
+
+    ```bash
     $ scraper.py 10,50 --smart --force
+    ```
+    
 8. Test problems 8, 9 and 10
+
+    ```bash
     $ scraper.py 8-10 --test
+    ```
+    
 9. Test problem 8, cleaning the problems directory first
-	$ scraper.py 8 --test --clean
+
+    ```bash
+    $ scraper.py 8 --test --clean
+    ```
+    
