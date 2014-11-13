@@ -63,6 +63,20 @@ def %s:
 
 """
 
+## python class parameters ##
+PYTHON_CLASS_TEMPLATE = """#!/usr/bin/python
+
+class %s(object):
+    \"\"\"docstring for %s\"\"\"
+    def __init__(self, arg=None):
+        super(%s, self).__init__()
+        self.arg = arg
+
+    def %s:
+        pass
+
+"""
+
 ## test icons ##
 CHECK_MARK = 'Y' # u'\u2713'
 CROSS_MARK = 'N' # u'\u2717'
@@ -114,6 +128,22 @@ class Problem(object, IterableUserDict):
         signature += ", ".join([str(x) for x in self['definition']['names']['input']])
         signature += ")"
         return signature
+
+    def _generate_mini_instancemethod_signature(self):
+        """Returns the instance method signature for the problem, in the form
+            <name>(self, <name>, <name>, ...)
+        e.g. MyFunc(self, A, B)
+        """
+        signature = "%s(self, " % self['definition']['method']
+        signature += ", ".join([str(x) for x in self['definition']['names']['input']])
+        signature += ")"
+        return signature
+
+    def _generate_mini_class_name(self):
+        """Returns the class name for the problem
+        """
+        classname = "%s" % self['definition']['class']
+        return classname
 
     def _generate_filled_signature(self, inputs = None, output = None):
         """Returns the method signature for the problem with the given inputs
@@ -268,13 +298,19 @@ class Problem(object, IterableUserDict):
     def to_python(self, template = PYTHON_TEMPLATE):
         """Returns a Python file, with the method header, according to the
         specified python template."""
-        return PYTHON_TEMPLATE % self._generate_mini_signature()
-        
-    def to_python_file(self, filename, template = PYTHON_TEMPLATE):
+        if template == PYTHON_TEMPLATE:
+            return template % self._generate_mini_signature()
+        else:
+            classname = self._generate_mini_class_name()
+            method_signature = self._generate_mini_instancemethod_signature()
+            return template % (classname, classname, classname, method_signature)
+
+    def to_python_file(self, filename, template_type = "method"):
         """Saves Python text to a file, with the method header, according to the
         specified python template."""
+        template_map = {"method":PYTHON_TEMPLATE, "class":PYTHON_CLASS_TEMPLATE}
         python_file = open(filename, 'w')
-        python_file.write(self.to_python())
+        python_file.write(self.to_python(template_map[template_type]))
         python_file.close()
 
     # json output #
